@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage{chessboard}
+\input{chess-engine}
+
+\begin{document}
+
+\def\gameseed{42}      % Change this number to get a different game
+\initboard
+\initgamestate
+
+\section*{Chess: You vs.\ \TeX\ Engine}
+
+%%% =============================================
+%%% YOUR MOVES BELOW (add one per turn, recompile)
+%%% Use coordinate notation: e2e4, g1f3, etc.
+%%% =============================================
+
+\playmove{e2e4}
+% \playmove{...}     ← add your next move here after compiling
+
+%%% =============================================
+
+\subsection*{Board}
+\showboard
+
+\subsection*{Moves}
+\showmovehistory
+
+\ifnum\gameresult=0
+  \par\medskip\noindent
+  \fbox{\textit{Your turn! Add \texttt{\textbackslash playmove\{...\}} above and recompile.}}
+\fi
+
+\subsection*{How to play}
+\begin{enumerate}
+  \item Look at the move history above to see the engine's reply.
+  \item Add your next move as \texttt{\textbackslash playmove\{e2e4\}} (coordinate notation: from-square to-square).
+  \item Recompile. The engine picks a random legal move and responds.
+  \item Repeat until checkmate or draw!
+\end{enumerate}
+
+\noindent\textit{Examples: \texttt{e2e4} (pawn), \texttt{g1f3} (knight), \texttt{e1g1} (kingside castle).}
+
+\medskip\noindent\textit{Engine responses are stable across recompiles. Change
+\texttt{\textbackslash gameseed\{...\}} to start a different game.}
+
+\end{document}

@@ -1,0 +1,310 @@
+\documentclass{article}
+\usepackage{chessboard}
+\input{chess-engine}
+
+\makeatletter
+
+\newcount\testcount
+\newcount\passcount
+\newcount\failcount
+\testcount=0\relax
+\passcount=0\relax
+\failcount=0\relax
+
+\def\testassert#1#2#3{%
+  \global\advance\testcount by 1\relax
+  \ifnum#2=#3\relax
+    \global\advance\passcount by 1\relax
+    \message{PASS: #1 (expected=#2, got=#3)}%
+  \else
+    \global\advance\failcount by 1\relax
+    \message{FAIL: #1 (expected=#2, got=#3)}%
+  \fi
+}
+
+\begin{document}
+
+\message{^^J========================================}
+\message{   Chess Engine Test Suite}
+\message{========================================^^J}
+
+%% ========================================
+%% Test 1: Coordinate math
+%% ========================================
+\message{--- Test: Coordinate math ---}
+
+\testassert{sqfile(1)}{1}{\sqfile{1}}
+\testassert{sqrank(1)}{1}{\sqrank{1}}
+\testassert{sqfile(64)}{8}{\sqfile{64}}
+\testassert{sqrank(64)}{8}{\sqrank{64}}
+\testassert{sqindex(5,1)}{5}{\sqindex{5}{1}}
+\testassert{sqindex(5,4)}{29}{\sqindex{5}{4}}
+\testassert{sqindex(1,8)}{57}{\sqindex{1}{8}}
+% Extra edge cases
+\testassert{sqfile(8)}{8}{\sqfile{8}}
+\testassert{sqrank(8)}{1}{\sqrank{8}}
+\testassert{sqfile(9)}{1}{\sqfile{9}}
+\testassert{sqrank(9)}{2}{\sqrank{9}}
+
+%% ========================================
+%% Test 2: Starting position - 20 legal moves
+%% ========================================
+\message{^^J--- Test: Starting position legal moves ---}
+
+\initboard
+\initgamestate
+\generatelegal
+\testassert{starting pos legal moves}{20}{\the\legalmovecnt}
+
+%% ========================================
+%% Test 3: Knight on e4, empty board
+%% ========================================
+\message{^^J--- Test: Knight on e4 empty board ---}
+
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+\setsq{29}{2}% wN on e4
+\setsq{5}{6}%  wK on e1
+\setsq{61}{-6}% bK on e8
+\global\sidetomove=1\relax
+\global\castleWK=0\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=0\relax
+\generatelegal
+% 8 knight moves + 5 king moves (d1,f1,d2,e2,f2) = 13
+\testassert{knight e4 + king moves}{13}{\the\legalmovecnt}
+
+%% ========================================
+%% Test 4: Rook on a1 empty board
+%% ========================================
+\message{^^J--- Test: Rook on a1 empty board ---}
+
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+\setsq{1}{4}%  wR on a1
+\setsq{5}{6}%  wK on e1
+\setsq{61}{-6}% bK on e8
+\global\sidetomove=1\relax
+\global\castleWK=0\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=0\relax
+\generatelegal
+% Rook: b1,c1,d1 (3 right, blocked by king) + a2..a8 (7 up) = 10
+% King: d1,f1,d2,e2,f2 = 5
+% Total = 15
+\testassert{rook a1 + king moves}{15}{\the\legalmovecnt}
+
+%% ========================================
+%% Test 5: Check detection
+%% ========================================
+\message{^^J--- Test: Check detection ---}
+
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+\setsq{5}{6}%   wK on e1
+\setsq{61}{-6}% bK on e8
+\setsq{37}{-4}% bR on e5
+
+\issquareattacked{5}{-1}% Is e1 attacked by black?
+\testassert{check detection rook}{1}{\the\attackresult}
+
+\issquareattacked{1}{-1}% Is a1 attacked by black?
+\testassert{a1 not attacked}{0}{\the\attackresult}
+
+%% ========================================
+%% Test 6: Pinned piece cannot move off pin line
+%% ========================================
+\message{^^J--- Test: Pinned piece ---}
+
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+\setsq{5}{6}%   wK on e1
+\setsq{13}{3}%  wB on e2
+\setsq{61}{-4}% bR on e8
+\setsq{57}{-6}% bK on a8
+\global\sidetomove=1\relax
+\global\castleWK=0\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=0\relax
+\generatelegal
+% Bishop pinned (all moves leave e-file -> exposed to rook): 0 bishop moves
+% King: d1(4), f1(6), d2(12), f2(14) = 4 (e2 occupied by own piece)
+\testassert{pinned bishop moves}{4}{\the\legalmovecnt}
+
+%% ========================================
+%% Test 7: En passant
+%% ========================================
+\message{^^J--- Test: En passant ---}
+
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+\setsq{37}{1}%  wP on e5
+\setsq{36}{-1}% bP on d5
+\setsq{5}{6}%   wK on e1
+\setsq{61}{-6}% bK on e8
+\global\sidetomove=1\relax
+\global\castleWK=0\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=44\relax % d6 = (6-1)*8+4 = 44
+\generatelegal
+% Pawn: e6(45) push + d6(44) en passant = 2
+% King: d1,f1,d2,e2,f2 = 5
+% Total = 7
+\testassert{en passant available}{7}{\the\legalmovecnt}
+
+%% ========================================
+%% Test 8: Castling - legal when path clear
+%% ========================================
+\message{^^J--- Test: Castling ---}
+
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+\setsq{5}{6}%   wK on e1
+\setsq{8}{4}%   wR on h1
+\setsq{61}{-6}% bK on e8
+\global\sidetomove=1\relax
+\global\castleWK=1\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=0\relax
+\generatelegal
+% King: d1,f1,d2,e2,f2 (5 normal) + g1 castling = 6
+% Rook: g1,f1 (2 left) + h2..h8 (7 up) = 9
+% Total = 15
+\testassert{castling kingside available}{15}{\the\legalmovecnt}
+
+%% ========================================
+%% Test 9: Castling illegal when through check
+%% ========================================
+\message{^^J--- Test: Castling through check ---}
+
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+\setsq{5}{6}%   wK on e1
+\setsq{8}{4}%   wR on h1
+\setsq{62}{-4}% bR on f8 (attacks f-file)
+\setsq{61}{-6}% bK on e8
+\global\sidetomove=1\relax
+\global\castleWK=1\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=0\relax
+\generatelegal
+% f1 and f2 attacked by bR on f8 -> castling illegal, king can't go to f1 or f2
+% King: d1(4), d2(12), e2(13) = 3
+% Rook: g1(7), f1(6) = 2 left + h2..h8 = 7 up = 9
+% Total = 12
+\testassert{castling through check blocked}{12}{\the\legalmovecnt}
+
+%% ========================================
+%% Test 10: Checkmate
+%% ========================================
+\message{^^J--- Test: Checkmate ---}
+
+\global\gameresult=0\relax
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+% Back-rank mate: wK on g1, pawns on f2,g2,h2, bR on a1, bK on e8
+\setsq{7}{6}%   wK on g1
+\setsq{14}{1}%  wP on f2
+\setsq{15}{1}%  wP on g2
+\setsq{16}{1}%  wP on h2
+\setsq{1}{-4}%  bR on a1
+\setsq{61}{-6}% bK on e8
+\global\sidetomove=1\relax
+\global\castleWK=0\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=0\relax
+% wK in check from bR on a1 (rank 1). All king escapes blocked by own pawns.
+% No piece can block. Checkmate -> gameresult = -(1) = -1 (black wins)
+\checkgameend
+\testassert{checkmate detected}{-1}{\the\gameresult}
+
+%% ========================================
+%% Test 11: Stalemate
+%% ========================================
+\message{^^J--- Test: Stalemate ---}
+
+\global\gameresult=0\relax
+\count190=1\relax
+\loop\ifnum\count190<65
+  \setsq{\the\count190}{0}%
+  \advance\count190 by 1
+\repeat
+% bK on a8(57), wK on a6(41), wQ on b6(42)
+\setsq{57}{-6}% bK on a8
+\setsq{41}{6}%  wK on a6
+\setsq{42}{5}%  wQ on b6
+\global\sidetomove=-1\relax
+\global\castleWK=0\relax \global\castleWQ=0\relax
+\global\castleBK=0\relax \global\castleBQ=0\relax
+\global\epsquare=0\relax
+\checkgameend
+\testassert{stalemate detected}{2}{\the\gameresult}
+
+%% ========================================
+%% Test 12: FEN for starting position
+%% ========================================
+\message{^^J--- Test: FEN generation ---}
+
+\initboard
+\initgamestate
+\generatefen
+\message{FEN: \fenstring}
+\message{Expected: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR}
+
+%% ========================================
+%% Test 13: Black starting legal moves
+%% ========================================
+\message{^^J--- Test: Black starting moves ---}
+
+\initboard
+\initgamestate
+\makemove{13}{29}{0}% e2-e4
+\updategamestate{13}{29}{0}%
+\generatelegal
+\testassert{black starting moves after e4}{20}{\the\legalmovecnt}
+
+%% ========================================
+%% Summary
+%% ========================================
+\message{^^J========================================}
+\message{Tests: \the\testcount, Passed: \the\passcount, Failed: \the\failcount}
+\message{========================================^^J}
+
+\makeatother
+
+\section*{Chess Engine Test Results}
+Tests run: \the\testcount\\
+Passed: \the\passcount\\
+Failed: \the\failcount
+
+\ifnum\failcount>0
+  \par\textbf{SOME TESTS FAILED -- see log for details.}
+\else
+  \par\textbf{ALL TESTS PASSED!}
+\fi
+
+\end{document}

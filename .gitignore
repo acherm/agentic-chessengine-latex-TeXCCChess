@@ -1,0 +1,10 @@
+*.aux
+*.log
+*.pdf
+*.dat
+texput.*
+interactive-game.*
+interactive-moves.txt
+test-seed*.tex
+test-seed*.*
+test-two-moves*.*

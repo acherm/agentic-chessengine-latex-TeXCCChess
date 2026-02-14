@@ -1,0 +1,1342 @@
+% chess-engine.tex -- A chess engine in pure pdfLaTeX
+% No Lua, no external programs for logic.
+% Uses \count registers 200-263 for the 8x8 board.
+% Piece encoding: 0=empty, 1=wP, 2=wN, 3=wB, 4=wR, 5=wQ, 6=wK
+%                 negatives for black (-1=bP, -2=bN, etc.)
+
+\makeatletter
+
+%% ========================================================
+%% Step 1: Board Representation & Coordinates
+%% ========================================================
+
+% Square index: (rank-1)*8 + file, where file a=1..h=8, rank 1..8
+% So a1=1, b1=2, ..., h1=8, a2=9, ..., h8=64
+% Stored in \count registers 200..263 (square index i -> \count\numexpr199+i\relax)
+
+% Set a square value: \setsq{index}{value}
+\def\setsq#1#2{\global\count\numexpr199+#1\relax=#2\relax}
+
+% Get a square value (expandable): \getsq{index}
+\def\getsq#1{\the\count\numexpr199+#1\relax}
+
+% Precompute file and rank lookup tables for all 64 squares.
+% \numexpr division ROUNDS (not truncates), so we use \divide (which truncates).
+\count190=1\relax
+\loop\ifnum\count190<65
+  \count191=\count190\relax \advance\count191 by -1\relax % 0-based index
+  \count192=\count191\relax \divide\count192 by 8\relax   % rank 0-based (truncating)
+  \count193=\count192\relax \multiply\count193 by 8\relax
+  \count194=\count191\relax \advance\count194 by -\count193\relax % file 0-based
+  \advance\count192 by 1\relax % rank 1-based
+  \advance\count194 by 1\relax % file 1-based
+  \expandafter\edef\csname sq@file@\the\count190\endcsname{\the\count194}%
+  \expandafter\edef\csname sq@rank@\the\count190\endcsname{\the\count192}%
+  \advance\count190 by 1\relax
+\repeat
+
+% Extract file (1-8) from square index (expandable via csname lookup)
+\def\sqfile#1{\csname sq@file@#1\endcsname}
+
+% Extract rank (1-8) from square index (expandable via csname lookup)
+\def\sqrank#1{\csname sq@rank@#1\endcsname}
+
+% Compute square index from file and rank (no division, safe with \numexpr)
+\def\sqindex#1#2{\the\numexpr(#2-1)*8+#1\relax}
+
+% File letter <-> number lookups
+\expandafter\def\csname filetonum@a\endcsname{1}
+\expandafter\def\csname filetonum@b\endcsname{2}
+\expandafter\def\csname filetonum@c\endcsname{3}
+\expandafter\def\csname filetonum@d\endcsname{4}
+\expandafter\def\csname filetonum@e\endcsname{5}
+\expandafter\def\csname filetonum@f\endcsname{6}
+\expandafter\def\csname filetonum@g\endcsname{7}
+\expandafter\def\csname filetonum@h\endcsname{8}
+
+\expandafter\def\csname numtofile@1\endcsname{a}
+\expandafter\def\csname numtofile@2\endcsname{b}
+\expandafter\def\csname numtofile@3\endcsname{c}
+\expandafter\def\csname numtofile@4\endcsname{d}
+\expandafter\def\csname numtofile@5\endcsname{e}
+\expandafter\def\csname numtofile@6\endcsname{f}
+\expandafter\def\csname numtofile@7\endcsname{g}
+\expandafter\def\csname numtofile@8\endcsname{h}
+
+\def\filetonum#1{\csname filetonum@#1\endcsname}
+\def\numtofile#1{\csname numtofile@#1\endcsname}
+
+% Helper: compute file and rank of a count register value into two count registers.
+% Usage: \computefilerank{\the\somecount}{\mg@fromfile}{\mg@fromrank}
+% Uses \count188 and \count189 as scratch.
+\def\computefilerank#1#2#3{%
+  \count188=#1\relax \advance\count188 by -1\relax
+  \count189=\count188\relax \divide\count189 by 8\relax
+  #3=\count189\relax \advance#3 by 1\relax
+  \count189=\count189\relax \multiply\count189 by 8\relax
+  \advance\count188 by -\count189\relax
+  #2=\count188\relax \advance#2 by 1\relax
+}
+
+% Initialize board to starting position
+\def\initboard{%
+  % Clear all squares
+  \count190=1\relax
+  \loop\ifnum\count190<65
+    \setsq{\the\count190}{0}%
+    \advance\count190 by 1
+  \repeat
+  % White pieces (rank 1)
+  \setsq{1}{4}%  a1 = wR
+  \setsq{2}{2}%  b1 = wN
+  \setsq{3}{3}%  c1 = wB
+  \setsq{4}{5}%  d1 = wQ
+  \setsq{5}{6}%  e1 = wK
+  \setsq{6}{3}%  f1 = wB
+  \setsq{7}{2}%  g1 = wN
+  \setsq{8}{4}%  h1 = wR
+  % White pawns (rank 2)
+  \setsq{9}{1}\setsq{10}{1}\setsq{11}{1}\setsq{12}{1}%
+  \setsq{13}{1}\setsq{14}{1}\setsq{15}{1}\setsq{16}{1}%
+  % Black pawns (rank 7)
+  \setsq{49}{-1}\setsq{50}{-1}\setsq{51}{-1}\setsq{52}{-1}%
+  \setsq{53}{-1}\setsq{54}{-1}\setsq{55}{-1}\setsq{56}{-1}%
+  % Black pieces (rank 8)
+  \setsq{57}{-4}% a8 = bR
+  \setsq{58}{-2}% b8 = bN
+  \setsq{59}{-3}% c8 = bB
+  \setsq{60}{-5}% d8 = bQ
+  \setsq{61}{-6}% e8 = bK
+  \setsq{62}{-3}% f8 = bB
+  \setsq{63}{-2}% g8 = bN
+  \setsq{64}{-4}% h8 = bR
+}
+
+%% ========================================================
+%% Step 2: Game State
+%% ========================================================
+
+\newcount\sidetomove    % 1=white, -1=black
+\newcount\castleWK      % White kingside castling right (0 or 1)
+\newcount\castleWQ      % White queenside castling right
+\newcount\castleBK      % Black kingside castling right
+\newcount\castleBQ      % Black queenside castling right
+\newcount\epsquare      % En passant target square (0=none)
+\newcount\halfmoveclock % Half-move clock for 50-move rule
+\newcount\fullmovenumber
+\newcount\gameresult    % 0=ongoing, 1=white wins, -1=black wins, 2=draw
+
+\newtoks\movehistory    % Token list for move history display
+
+\newcount\gamehash      % Running hash for deterministic RNG seeding
+
+% User-configurable game seed. Change this to get a different game.
+% Override with \def\gameseed{...} before \initgamestate.
+\def\gameseed{1}
+
+\def\initgamestate{%
+  \global\sidetomove=1\relax
+  \global\castleWK=1\relax
+  \global\castleWQ=1\relax
+  \global\castleBK=1\relax
+  \global\castleBQ=1\relax
+  \global\epsquare=0\relax
+  \global\halfmoveclock=0\relax
+  \global\fullmovenumber=1\relax
+  \global\gameresult=0\relax
+  \global\movehistory={}%
+  \global\gamehash=\gameseed\relax
+}
+
+% Update the hash with a user move and seed the RNG before the engine responds.
+% Hash formula: h = (h * 7 + from + to * 64) mod 999979
+% This ensures: same user moves -> same hash -> same engine replies across recompiles.
+\def\seedbeforeenginemove{%
+  {%
+    \count186=\gamehash\relax
+    \multiply\count186 by 7\relax
+    \advance\count186 by \userfrom\relax
+    \count187=\userto\relax
+    \multiply\count187 by 64\relax
+    \advance\count186 by \count187\relax
+    % Modulo to prevent overflow (999979 is prime)
+    \count187=\count186\relax
+    \divide\count187 by 999979\relax
+    \multiply\count187 by 999979\relax
+    \advance\count186 by -\count187\relax
+    \ifnum\count186<0 \advance\count186 by 999979\relax\fi
+    \global\gamehash=\count186\relax
+  }%
+  \pdfsetrandomseed\gamehash\relax
+}
+
+%% ========================================================
+%% Step 3: FEN Generation & Board Display
+%% ========================================================
+
+\def\piecetofenchar#1{%
+  \ifcase\numexpr#1+6\relax
+    k\or q\or r\or b\or n\or p\or ?\or P\or N\or B\or R\or Q\or K\fi
+}
+
+\newcount\fenrank
+\newcount\fenfile
+\newcount\fenempty
+\newcount\fenpiece
+\newcount\fensqidx
+
+\def\generatefen{%
+  \def\fenstring{}%
+  \fenrank=8\relax
+  \fen@rankloop
+}
+
+\def\fen@rankloop{%
+  \ifnum\fenrank>0
+    \fenempty=0\relax
+    \fenfile=1\relax
+    \fen@fileloop
+    % Flush trailing empties
+    \ifnum\fenempty>0
+      \edef\fenstring{\fenstring\the\fenempty}%
+    \fi
+    \ifnum\fenrank>1
+      \edef\fenstring{\fenstring/}%
+    \fi
+    \advance\fenrank by -1\relax
+    \expandafter\fen@rankloop
+  \fi
+}
+
+\def\fen@fileloop{%
+  \ifnum\fenfile<9
+    \fensqidx=\numexpr(\fenrank-1)*8+\fenfile\relax
+    \fenpiece=\count\numexpr199+\fensqidx\relax
+    \ifnum\fenpiece=0
+      \advance\fenempty by 1\relax
+    \else
+      \ifnum\fenempty>0
+        \edef\fenstring{\fenstring\the\fenempty}%
+        \fenempty=0\relax
+      \fi
+      \edef\fenstring{\fenstring\piecetofenchar{\the\fenpiece}}%
+    \fi
+    \advance\fenfile by 1\relax
+    \expandafter\fen@fileloop
+  \fi
+}
+
+% Declare \ifnocastle outside any macro (must be allocated once)
+\newif\ifnocastle
+
+% Full FEN with game state
+\def\generatefullfen{%
+  \generatefen
+  % Side to move
+  \ifnum\sidetomove=1
+    \edef\fenstring{\fenstring\space w}%
+  \else
+    \edef\fenstring{\fenstring\space b}%
+  \fi
+  % Castling
+  \edef\fenstring{\fenstring\space}%
+  \nocastletrue
+  \ifnum\castleWK=1 \edef\fenstring{\fenstring K}\nocastlefalse\fi
+  \ifnum\castleWQ=1 \edef\fenstring{\fenstring Q}\nocastlefalse\fi
+  \ifnum\castleBK=1 \edef\fenstring{\fenstring k}\nocastlefalse\fi
+  \ifnum\castleBQ=1 \edef\fenstring{\fenstring q}\nocastlefalse\fi
+  \ifnocastle\edef\fenstring{\fenstring -}\fi
+  % En passant
+  \ifnum\epsquare=0
+    \edef\fenstring{\fenstring\space -}%
+  \else
+    \edef\fenstring{\fenstring\space
+      \numtofile{\sqfile{\the\epsquare}}\sqrank{\the\epsquare}}%
+  \fi
+  % Clocks
+  \edef\fenstring{\fenstring\space\the\halfmoveclock\space\the\fullmovenumber}%
+}
+
+% Show board using chessboard package
+\def\showboard{%
+  \generatefen
+  \edef\tmp@showboard{\noexpand\setchessboard{setfen=\fenstring}}%
+  \tmp@showboard
+  \chessboard
+}
+
+%% ========================================================
+%% Step 4: Attack Detection
+%% ========================================================
+
+\newcount\attackresult
+\newcount\atk@sq
+\newcount\atk@color
+\newcount\atk@file
+\newcount\atk@rank
+\newcount\atk@tf
+\newcount\atk@tr
+\newcount\atk@tsq
+\newcount\atk@piece
+
+% \issquareattacked{square}{attackercolor} -> sets \attackresult
+\def\issquareattacked#1#2{%
+  \attackresult=0\relax
+  \atk@sq=#1\relax
+  \atk@color=#2\relax
+  \computefilerank{\the\atk@sq}{\atk@file}{\atk@rank}%
+  % Check pawn attacks
+  \ifnum\attackresult=0 \atk@checkpawns\fi
+  % Check knight attacks
+  \ifnum\attackresult=0 \atk@checkknights\fi
+  % Check king attacks
+  \ifnum\attackresult=0 \atk@checkking\fi
+  % Check sliding attacks (rook/queen on orthogonals, bishop/queen on diagonals)
+  \ifnum\attackresult=0 \atk@checksliding\fi
+}
+
+% Check pawn attacks on \atk@sq by \atk@color
+\def\atk@checkpawns{%
+  % Pawns of color c attack from rank (sq_rank - c) at file +/- 1
+  \atk@tr=\numexpr\atk@rank-\atk@color\relax
+  \ifnum\atk@tr>0 \ifnum\atk@tr<9
+    % Left diagonal
+    \atk@tf=\numexpr\atk@file-1\relax
+    \ifnum\atk@tf>0
+      \atk@tsq=\numexpr(\atk@tr-1)*8+\atk@tf\relax
+      \atk@piece=\count\numexpr199+\atk@tsq\relax
+      \ifnum\atk@piece=\numexpr\atk@color\relax
+        \attackresult=1\relax
+      \fi
+    \fi
+    % Right diagonal
+    \ifnum\attackresult=0
+      \atk@tf=\numexpr\atk@file+1\relax
+      \ifnum\atk@tf<9
+        \atk@tsq=\numexpr(\atk@tr-1)*8+\atk@tf\relax
+        \atk@piece=\count\numexpr199+\atk@tsq\relax
+        \ifnum\atk@piece=\numexpr\atk@color\relax
+          \attackresult=1\relax
+        \fi
+      \fi
+    \fi
+  \fi\fi
+}
+
+% Check knight attacks
+\def\atk@checkknights{%
+  \atk@tryknightsrc{-2}{-1}%
+  \ifnum\attackresult=0 \atk@tryknightsrc{-2}{1}\fi
+  \ifnum\attackresult=0 \atk@tryknightsrc{-1}{-2}\fi
+  \ifnum\attackresult=0 \atk@tryknightsrc{-1}{2}\fi
+  \ifnum\attackresult=0 \atk@tryknightsrc{1}{-2}\fi
+  \ifnum\attackresult=0 \atk@tryknightsrc{1}{2}\fi
+  \ifnum\attackresult=0 \atk@tryknightsrc{2}{-1}\fi
+  \ifnum\attackresult=0 \atk@tryknightsrc{2}{1}\fi
+}
+
+\def\atk@tryknightsrc#1#2{%
+  \atk@tf=\numexpr\atk@file+(#1)\relax
+  \atk@tr=\numexpr\atk@rank+(#2)\relax
+  \ifnum\atk@tf>0 \ifnum\atk@tf<9 \ifnum\atk@tr>0 \ifnum\atk@tr<9
+    \atk@tsq=\numexpr(\atk@tr-1)*8+\atk@tf\relax
+    \atk@piece=\count\numexpr199+\atk@tsq\relax
+    \ifnum\atk@piece=\numexpr2*\atk@color\relax
+      \attackresult=1\relax
+    \fi
+  \fi\fi\fi\fi
+}
+
+% Check king attacks (adjacent squares)
+\def\atk@checkking{%
+  \atk@trykingsrc{-1}{-1}%
+  \ifnum\attackresult=0 \atk@trykingsrc{-1}{0}\fi
+  \ifnum\attackresult=0 \atk@trykingsrc{-1}{1}\fi
+  \ifnum\attackresult=0 \atk@trykingsrc{0}{-1}\fi
+  \ifnum\attackresult=0 \atk@trykingsrc{0}{1}\fi
+  \ifnum\attackresult=0 \atk@trykingsrc{1}{-1}\fi
+  \ifnum\attackresult=0 \atk@trykingsrc{1}{0}\fi
+  \ifnum\attackresult=0 \atk@trykingsrc{1}{1}\fi
+}
+
+\def\atk@trykingsrc#1#2{%
+  \atk@tf=\numexpr\atk@file+(#1)\relax
+  \atk@tr=\numexpr\atk@rank+(#2)\relax
+  \ifnum\atk@tf>0 \ifnum\atk@tf<9 \ifnum\atk@tr>0 \ifnum\atk@tr<9
+    \atk@tsq=\numexpr(\atk@tr-1)*8+\atk@tf\relax
+    \atk@piece=\count\numexpr199+\atk@tsq\relax
+    \ifnum\atk@piece=\numexpr6*\atk@color\relax
+      \attackresult=1\relax
+    \fi
+  \fi\fi\fi\fi
+}
+
+% Check sliding piece attacks (bishop, rook, queen)
+\def\atk@checksliding{%
+  % Orthogonal rays: check for rook (4) or queen (5)
+  \atk@castray{0}{1}{4}{5}%
+  \ifnum\attackresult=0 \atk@castray{0}{-1}{4}{5}\fi
+  \ifnum\attackresult=0 \atk@castray{1}{0}{4}{5}\fi
+  \ifnum\attackresult=0 \atk@castray{-1}{0}{4}{5}\fi
+  % Diagonal rays: check for bishop (3) or queen (5)
+  \ifnum\attackresult=0 \atk@castray{1}{1}{3}{5}\fi
+  \ifnum\attackresult=0 \atk@castray{1}{-1}{3}{5}\fi
+  \ifnum\attackresult=0 \atk@castray{-1}{1}{3}{5}\fi
+  \ifnum\attackresult=0 \atk@castray{-1}{-1}{3}{5}\fi
+}
+
+\newcount\ray@f
+\newcount\ray@r
+\newcount\ray@sq
+\newcount\ray@p
+
+\def\atk@castray#1#2#3#4{%
+  \ray@f=\atk@file
+  \ray@r=\atk@rank
+  \def\ray@df{#1}\def\ray@dr{#2}%
+  \def\ray@ta{#3}\def\ray@tb{#4}%
+  \atk@rayloop
+}
+
+\def\atk@rayloop{%
+  \advance\ray@f by \ray@df\relax
+  \advance\ray@r by \ray@dr\relax
+  \ifnum\ray@f>0 \ifnum\ray@f<9 \ifnum\ray@r>0 \ifnum\ray@r<9
+    \ray@sq=\numexpr(\ray@r-1)*8+\ray@f\relax
+    \ray@p=\count\numexpr199+\ray@sq\relax
+    \ifnum\ray@p=0
+      \expandafter\expandafter\expandafter\expandafter
+      \expandafter\expandafter\expandafter\atk@rayloop
+    \else
+      % Hit a piece - check if it's the right attacker
+      \ifnum\ray@p=\numexpr\ray@ta*\atk@color\relax
+        \attackresult=1\relax
+      \else\ifnum\ray@p=\numexpr\ray@tb*\atk@color\relax
+        \attackresult=1\relax
+      \fi\fi
+    \fi
+  \fi\fi\fi\fi
+}
+
+%% ========================================================
+%% Step 5-8: Move Generation
+%% ========================================================
+
+\newcount\movecnt
+\newtoks\movelist
+
+\def\clearmovelist{%
+  \global\movecnt=0\relax
+  \global\movelist={}%
+}
+
+% Add a move: \addmove{from}{to}{flags}
+% flags: 0=normal, 1=en passant, 2=castling, 3=promotion (queen)
+\def\addmove#1#2#3{%
+  \global\advance\movecnt by 1\relax
+  \begingroup
+    \edef\tmp@add{%
+      \global\noexpand\movelist={%
+        \the\movelist\noexpand\moveentry{#1}{#2}{#3}}}%
+    \tmp@add
+  \endgroup
+}
+
+% --- Knight move generation ---
+
+\newcount\mg@from
+\newcount\mg@fromfile
+\newcount\mg@fromrank
+\newcount\mg@tf
+\newcount\mg@tr
+\newcount\mg@tsq
+\newcount\mg@tpiece
+
+\def\genknightmoves#1{%
+  \mg@from=#1\relax
+  \computefilerank{\the\mg@from}{\mg@fromfile}{\mg@fromrank}%
+  \tryknightjump{-2}{-1}%
+  \tryknightjump{-2}{1}%
+  \tryknightjump{-1}{-2}%
+  \tryknightjump{-1}{2}%
+  \tryknightjump{1}{-2}%
+  \tryknightjump{1}{2}%
+  \tryknightjump{2}{-1}%
+  \tryknightjump{2}{1}%
+}
+
+\def\tryknightjump#1#2{%
+  \mg@tf=\numexpr\mg@fromfile+(#1)\relax
+  \mg@tr=\numexpr\mg@fromrank+(#2)\relax
+  \ifnum\mg@tf>0 \ifnum\mg@tf<9 \ifnum\mg@tr>0 \ifnum\mg@tr<9
+    \mg@tsq=\numexpr(\mg@tr-1)*8+\mg@tf\relax
+    \mg@tpiece=\count\numexpr199+\mg@tsq\relax
+    % Can move if empty or enemy piece
+    \ifnum\sidetomove>0
+      \ifnum\mg@tpiece<1 % empty or black piece
+        \addmove{\the\mg@from}{\the\mg@tsq}{0}%
+      \fi
+    \else
+      \ifnum\mg@tpiece>-1 % empty or white piece
+        \addmove{\the\mg@from}{\the\mg@tsq}{0}%
+      \fi
+    \fi
+  \fi\fi\fi\fi
+}
+
+% --- King move generation (non-castling) ---
+
+\def\genkingmoves#1{%
+  \mg@from=#1\relax
+  \computefilerank{\the\mg@from}{\mg@fromfile}{\mg@fromrank}%
+  \trykingstep{-1}{-1}%
+  \trykingstep{-1}{0}%
+  \trykingstep{-1}{1}%
+  \trykingstep{0}{-1}%
+  \trykingstep{0}{1}%
+  \trykingstep{1}{-1}%
+  \trykingstep{1}{0}%
+  \trykingstep{1}{1}%
+  % Castling
+  \gencastlingmoves
+}
+
+\def\trykingstep#1#2{%
+  \mg@tf=\numexpr\mg@fromfile+(#1)\relax
+  \mg@tr=\numexpr\mg@fromrank+(#2)\relax
+  \ifnum\mg@tf>0 \ifnum\mg@tf<9 \ifnum\mg@tr>0 \ifnum\mg@tr<9
+    \mg@tsq=\numexpr(\mg@tr-1)*8+\mg@tf\relax
+    \mg@tpiece=\count\numexpr199+\mg@tsq\relax
+    \ifnum\sidetomove>0
+      \ifnum\mg@tpiece<1
+        \addmove{\the\mg@from}{\the\mg@tsq}{0}%
+      \fi
+    \else
+      \ifnum\mg@tpiece>-1
+        \addmove{\the\mg@from}{\the\mg@tsq}{0}%
+      \fi
+    \fi
+  \fi\fi\fi\fi
+}
+
+% --- Castling move generation ---
+
+\def\gencastlingmoves{%
+  \ifnum\sidetomove>0
+    % White kingside: e1(5)->g1(7), f1(6) and g1(7) must be empty
+    \ifnum\castleWK=1
+      \ifnum\mg@from=5
+        \mg@tpiece=\count\numexpr199+6\relax
+        \ifnum\mg@tpiece=0
+          \mg@tpiece=\count\numexpr199+7\relax
+          \ifnum\mg@tpiece=0
+            \addmove{5}{7}{2}%
+          \fi
+        \fi
+      \fi
+    \fi
+    % White queenside: e1(5)->c1(3), b1(2),c1(3),d1(4) must be empty
+    \ifnum\castleWQ=1
+      \ifnum\mg@from=5
+        \mg@tpiece=\count\numexpr199+4\relax
+        \ifnum\mg@tpiece=0
+          \mg@tpiece=\count\numexpr199+3\relax
+          \ifnum\mg@tpiece=0
+            \mg@tpiece=\count\numexpr199+2\relax
+            \ifnum\mg@tpiece=0
+              \addmove{5}{3}{2}%
+            \fi
+          \fi
+        \fi
+      \fi
+    \fi
+  \else
+    % Black kingside: e8(61)->g8(63), f8(62) and g8(63) must be empty
+    \ifnum\castleBK=1
+      \ifnum\mg@from=61
+        \mg@tpiece=\count\numexpr199+62\relax
+        \ifnum\mg@tpiece=0
+          \mg@tpiece=\count\numexpr199+63\relax
+          \ifnum\mg@tpiece=0
+            \addmove{61}{63}{2}%
+          \fi
+        \fi
+      \fi
+    \fi
+    % Black queenside: e8(61)->c8(59), b8(58),c8(59),d8(60) must be empty
+    \ifnum\castleBQ=1
+      \ifnum\mg@from=61
+        \mg@tpiece=\count\numexpr199+60\relax
+        \ifnum\mg@tpiece=0
+          \mg@tpiece=\count\numexpr199+59\relax
+          \ifnum\mg@tpiece=0
+            \mg@tpiece=\count\numexpr199+58\relax
+            \ifnum\mg@tpiece=0
+              \addmove{61}{59}{2}%
+            \fi
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+}
+
+% --- Sliding piece move generation ---
+
+\newcount\sl@f
+\newcount\sl@r
+\newcount\sl@sq
+\newcount\sl@p
+
+\def\genslidingmoves#1#2{%
+  \mg@from=#1\relax
+  \computefilerank{\the\mg@from}{\mg@fromfile}{\mg@fromrank}%
+  \ifnum#2=1
+    \castray{1}{1}\castray{1}{-1}\castray{-1}{1}\castray{-1}{-1}%
+  \fi
+  \ifnum#2=2
+    \castray{1}{0}\castray{-1}{0}\castray{0}{1}\castray{0}{-1}%
+  \fi
+  \ifnum#2=3
+    \castray{1}{1}\castray{1}{-1}\castray{-1}{1}\castray{-1}{-1}%
+    \castray{1}{0}\castray{-1}{0}\castray{0}{1}\castray{0}{-1}%
+  \fi
+}
+
+\def\castray#1#2{%
+  \sl@f=\mg@fromfile
+  \sl@r=\mg@fromrank
+  \def\sl@df{#1}\def\sl@dr{#2}%
+  \castrayloop
+}
+
+\def\castrayloop{%
+  \advance\sl@f by \sl@df\relax
+  \advance\sl@r by \sl@dr\relax
+  \ifnum\sl@f>0 \ifnum\sl@f<9 \ifnum\sl@r>0 \ifnum\sl@r<9
+    \sl@sq=\numexpr(\sl@r-1)*8+\sl@f\relax
+    \sl@p=\count\numexpr199+\sl@sq\relax
+    \ifnum\sl@p=0
+      \addmove{\the\mg@from}{\the\sl@sq}{0}%
+      \expandafter\expandafter\expandafter\expandafter
+      \expandafter\expandafter\expandafter\castrayloop
+    \else
+      \ifnum\sidetomove>0
+        \ifnum\sl@p<0
+          \addmove{\the\mg@from}{\the\sl@sq}{0}%
+        \fi
+      \else
+        \ifnum\sl@p>0
+          \addmove{\the\mg@from}{\the\sl@sq}{0}%
+        \fi
+      \fi
+    \fi
+  \fi\fi\fi\fi
+}
+
+% --- Pawn move generation ---
+
+\newcount\pawn@dir
+\newcount\pawn@startrank
+\newcount\pawn@promrank
+\newcount\pawn@nextsq
+\newcount\pawn@nextp
+\newcount\pawn@nextrank
+
+\def\genpawnmoves#1{%
+  \mg@from=#1\relax
+  \computefilerank{\the\mg@from}{\mg@fromfile}{\mg@fromrank}%
+  \ifnum\sidetomove>0
+    \pawn@dir=1\relax
+    \pawn@startrank=2\relax
+    \pawn@promrank=8\relax
+  \else
+    \pawn@dir=-1\relax
+    \pawn@startrank=7\relax
+    \pawn@promrank=1\relax
+  \fi
+  % Single push
+  \pawn@nextrank=\numexpr\mg@fromrank+\pawn@dir\relax
+  \ifnum\pawn@nextrank>0 \ifnum\pawn@nextrank<9
+    \pawn@nextsq=\numexpr(\pawn@nextrank-1)*8+\mg@fromfile\relax
+    \pawn@nextp=\count\numexpr199+\pawn@nextsq\relax
+    \ifnum\pawn@nextp=0
+      \ifnum\pawn@nextrank=\pawn@promrank
+        \addmove{\the\mg@from}{\the\pawn@nextsq}{3}%
+      \else
+        \addmove{\the\mg@from}{\the\pawn@nextsq}{0}%
+      \fi
+      % Double push from starting rank
+      \ifnum\mg@fromrank=\pawn@startrank
+        \pawn@nextrank=\numexpr\mg@fromrank+2*\pawn@dir\relax
+        \pawn@nextsq=\numexpr(\pawn@nextrank-1)*8+\mg@fromfile\relax
+        \pawn@nextp=\count\numexpr199+\pawn@nextsq\relax
+        \ifnum\pawn@nextp=0
+          \addmove{\the\mg@from}{\the\pawn@nextsq}{0}%
+        \fi
+      \fi
+    \fi
+  \fi\fi
+  % Captures
+  \trypawncapture{-1}%
+  \trypawncapture{1}%
+}
+
+\def\trypawncapture#1{%
+  \mg@tf=\numexpr\mg@fromfile+(#1)\relax
+  \pawn@nextrank=\numexpr\mg@fromrank+\pawn@dir\relax
+  \ifnum\mg@tf>0 \ifnum\mg@tf<9 \ifnum\pawn@nextrank>0 \ifnum\pawn@nextrank<9
+    \pawn@nextsq=\numexpr(\pawn@nextrank-1)*8+\mg@tf\relax
+    \pawn@nextp=\count\numexpr199+\pawn@nextsq\relax
+    % Normal capture: enemy piece present
+    \ifnum\sidetomove>0
+      \ifnum\pawn@nextp<0
+        \ifnum\pawn@nextrank=\pawn@promrank
+          \addmove{\the\mg@from}{\the\pawn@nextsq}{3}%
+        \else
+          \addmove{\the\mg@from}{\the\pawn@nextsq}{0}%
+        \fi
+      \fi
+    \else
+      \ifnum\pawn@nextp>0
+        \ifnum\pawn@nextrank=\pawn@promrank
+          \addmove{\the\mg@from}{\the\pawn@nextsq}{3}%
+        \else
+          \addmove{\the\mg@from}{\the\pawn@nextsq}{0}%
+        \fi
+      \fi
+    \fi
+    % En passant capture
+    \ifnum\pawn@nextsq=\epsquare
+      \addmove{\the\mg@from}{\the\pawn@nextsq}{1}%
+    \fi
+  \fi\fi\fi\fi
+}
+
+%% ========================================================
+%% Step 9: Generate All Pseudo-Legal Moves & Legal Filtering
+%% ========================================================
+
+\newcount\gen@sq
+\newcount\gen@piece
+\newcount\gen@abspiece
+
+\def\generateallmoves{%
+  \clearmovelist
+  \gen@sq=1\relax
+  \gen@sqloop
+}
+
+\def\gen@sqloop{%
+  \ifnum\gen@sq<65
+    \gen@piece=\count\numexpr199+\gen@sq\relax
+    \ifnum\gen@piece=0
+    \else
+      \ifnum\sidetomove>0
+        \ifnum\gen@piece>0
+          \gen@dispatch
+        \fi
+      \else
+        \ifnum\gen@piece<0
+          \gen@dispatch
+        \fi
+      \fi
+    \fi
+    \advance\gen@sq by 1\relax
+    \expandafter\gen@sqloop
+  \fi
+}
+
+\def\gen@dispatch{%
+  \gen@abspiece=\gen@piece
+  \ifnum\gen@abspiece<0 \gen@abspiece=-\gen@abspiece \fi
+  \ifcase\gen@abspiece
+    % 0 = empty
+  \or % 1 = pawn
+    \genpawnmoves{\the\gen@sq}%
+  \or % 2 = knight
+    \genknightmoves{\the\gen@sq}%
+  \or % 3 = bishop
+    \genslidingmoves{\the\gen@sq}{1}%
+  \or % 4 = rook
+    \genslidingmoves{\the\gen@sq}{2}%
+  \or % 5 = queen
+    \genslidingmoves{\the\gen@sq}{3}%
+  \or % 6 = king
+    \genkingmoves{\the\gen@sq}%
+  \fi
+}
+
+% --- Make / Unmake Move ---
+
+\newcount\mk@from
+\newcount\mk@to
+\newcount\mk@flags
+\newcount\mk@piece
+\newcount\mk@captured
+\newcount\mk@tofile
+\newcount\mk@fromrank
+
+% Saved state for unmake
+\newcount\save@captured
+\newcount\save@castleWK
+\newcount\save@castleWQ
+\newcount\save@castleBK
+\newcount\save@castleBQ
+\newcount\save@epsquare
+\newcount\save@halfmoveclock
+
+\def\makemove#1#2#3{%
+  \mk@from=#1\relax
+  \mk@to=#2\relax
+  \mk@flags=#3\relax
+  \mk@piece=\count\numexpr199+\mk@from\relax
+  \mk@captured=\count\numexpr199+\mk@to\relax
+  % Save state for unmake
+  \global\save@captured=\mk@captured
+  \global\save@castleWK=\castleWK
+  \global\save@castleWQ=\castleWQ
+  \global\save@castleBK=\castleBK
+  \global\save@castleBQ=\castleBQ
+  \global\save@epsquare=\epsquare
+  \global\save@halfmoveclock=\halfmoveclock
+  % Move piece
+  \setsq{\the\mk@to}{\the\mk@piece}%
+  \setsq{\the\mk@from}{0}%
+  % Handle special moves
+  \ifnum\mk@flags=1 % en passant
+    % Remove the captured pawn (same rank as from, same file as to)
+    \computefilerank{\the\mk@to}{\mk@tofile}{\mk@fromrank}%
+    % mk@tofile now has the file of the to-square
+    % We need the rank of the from-square
+    \mk@fromrank=\sqrank{\the\mk@from}\relax
+    \setsq{\the\numexpr(\mk@fromrank-1)*8+\mk@tofile\relax}{0}%
+  \fi
+  \ifnum\mk@flags=2 % castling
+    \ifnum\mk@to>\mk@from % kingside
+      \setsq{\the\numexpr\mk@from+1\relax}{\the\count\numexpr199+\mk@to+1\relax}%
+      \setsq{\the\numexpr\mk@to+1\relax}{0}%
+    \else % queenside
+      \setsq{\the\numexpr\mk@from-1\relax}{\the\count\numexpr199+\mk@to-2\relax}%
+      \setsq{\the\numexpr\mk@to-2\relax}{0}%
+    \fi
+  \fi
+  \ifnum\mk@flags=3 % promotion (to queen)
+    \setsq{\the\mk@to}{\the\numexpr5*\sidetomove\relax}%
+  \fi
+}
+
+\def\unmakemove#1#2#3{%
+  \mk@from=#1\relax
+  \mk@to=#2\relax
+  \mk@flags=#3\relax
+  \mk@piece=\count\numexpr199+\mk@to\relax
+  % Handle promotion: restore to pawn
+  \ifnum\mk@flags=3
+    \mk@piece=\sidetomove
+  \fi
+  % Restore piece to origin
+  \setsq{\the\mk@from}{\the\mk@piece}%
+  % Restore captured piece (or empty)
+  \setsq{\the\mk@to}{\the\save@captured}%
+  % Handle en passant: restore captured pawn
+  \ifnum\mk@flags=1
+    \computefilerank{\the\mk@to}{\mk@tofile}{\mk@fromrank}%
+    \mk@fromrank=\sqrank{\the\mk@from}\relax
+    \setsq{\the\numexpr(\mk@fromrank-1)*8+\mk@tofile\relax}{\the\numexpr-\sidetomove\relax}%
+  \fi
+  % Handle castling: restore rook
+  \ifnum\mk@flags=2
+    \ifnum\mk@to>\mk@from % kingside
+      \setsq{\the\numexpr\mk@to+1\relax}{\the\count\numexpr199+\mk@from+1\relax}%
+      \setsq{\the\numexpr\mk@from+1\relax}{0}%
+    \else % queenside
+      \setsq{\the\numexpr\mk@to-2\relax}{\the\count\numexpr199+\mk@from-1\relax}%
+      \setsq{\the\numexpr\mk@from-1\relax}{0}%
+    \fi
+  \fi
+  % Restore game state
+  \global\castleWK=\save@castleWK
+  \global\castleWQ=\save@castleWQ
+  \global\castleBK=\save@castleBK
+  \global\castleBQ=\save@castleBQ
+  \global\epsquare=\save@epsquare
+  \global\halfmoveclock=\save@halfmoveclock
+}
+
+% --- Find king square ---
+
+\newcount\fk@sq
+\newcount\fk@target
+\newcount\kingsquare
+
+\def\findkingsquare#1{%
+  \fk@target=\numexpr6*(#1)\relax
+  \kingsquare=0\relax
+  \fk@sq=1\relax
+  \fk@loop
+}
+
+\def\fk@loop{%
+  \ifnum\fk@sq<65
+    \ifnum\count\numexpr199+\fk@sq\relax=\fk@target
+      \kingsquare=\fk@sq
+    \else
+      \advance\fk@sq by 1\relax
+      \expandafter\expandafter\expandafter\fk@loop
+    \fi
+  \fi
+}
+
+% --- Legal move filtering ---
+
+\newcount\legalmovecnt
+\newtoks\legalmovelist
+
+\def\clearlegalmovelist{%
+  \global\legalmovecnt=0\relax
+  \global\legalmovelist={}%
+}
+
+\def\addlegalmove#1#2#3{%
+  \global\advance\legalmovecnt by 1\relax
+  \begingroup
+    \edef\tmp@add{%
+      \global\noexpand\legalmovelist={%
+        \the\legalmovelist\noexpand\moveentry{#1}{#2}{#3}}}%
+    \tmp@add
+  \endgroup
+}
+
+\newcount\fl@from
+\newcount\fl@to
+\newcount\fl@flags
+\newcount\fl@oppcolor
+
+\def\filterlegal{%
+  \clearlegalmovelist
+  \fl@oppcolor=\numexpr-\sidetomove\relax
+  \def\moveentry##1##2##3{%
+    \fl@from=##1\relax
+    \fl@to=##2\relax
+    \fl@flags=##3\relax
+    \fl@testmove{##1}{##2}{##3}%
+  }%
+  \the\movelist
+}
+
+\newcount\fl@legal
+
+\def\fl@testmove#1#2#3{%
+  \fl@legal=1\relax
+  \ifnum\fl@flags=2
+    \fl@testcastling{#1}{#2}{#3}%
+  \else
+    \makemove{#1}{#2}{#3}%
+    \findkingsquare{\the\sidetomove}%
+    \issquareattacked{\the\kingsquare}{\the\fl@oppcolor}%
+    \ifnum\attackresult=1
+      \fl@legal=0\relax
+    \fi
+    \unmakemove{#1}{#2}{#3}%
+  \fi
+  \ifnum\fl@legal=1
+    \addlegalmove{#1}{#2}{#3}%
+  \fi
+}
+
+\newcount\fl@transit
+
+\def\fl@testcastling#1#2#3{%
+  % King must not be in check now
+  \findkingsquare{\the\sidetomove}%
+  \issquareattacked{\the\kingsquare}{\the\fl@oppcolor}%
+  \ifnum\attackresult=1
+    \fl@legal=0\relax
+  \fi
+  \ifnum\fl@legal=1
+    % Transit square must not be attacked
+    \ifnum#2>#1
+      \fl@transit=\numexpr#1+1\relax
+    \else
+      \fl@transit=\numexpr#1-1\relax
+    \fi
+    \issquareattacked{\the\fl@transit}{\the\fl@oppcolor}%
+    \ifnum\attackresult=1
+      \fl@legal=0\relax
+    \fi
+  \fi
+  \ifnum\fl@legal=1
+    \makemove{#1}{#2}{#3}%
+    \issquareattacked{#2}{\the\fl@oppcolor}%
+    \ifnum\attackresult=1
+      \fl@legal=0\relax
+    \fi
+    \unmakemove{#1}{#2}{#3}%
+  \fi
+}
+
+% Convenience: generate and filter in one call
+\def\generatelegal{%
+  \generateallmoves
+  \filterlegal
+}
+
+%% ========================================================
+%% Step 10: Game State Update (after move execution)
+%% ========================================================
+
+\def\updategamestate#1#2#3{%
+  % Toggle side to move
+  \global\sidetomove=\numexpr-\sidetomove\relax
+  % Update castling rights
+  \ifnum#1=5 \global\castleWK=0\relax\global\castleWQ=0\relax\fi
+  \ifnum#1=61 \global\castleBK=0\relax\global\castleBQ=0\relax\fi
+  \ifnum#1=1 \global\castleWQ=0\relax\fi
+  \ifnum#1=8 \global\castleWK=0\relax\fi
+  \ifnum#1=57 \global\castleBQ=0\relax\fi
+  \ifnum#1=64 \global\castleBK=0\relax\fi
+  \ifnum#2=1 \global\castleWQ=0\relax\fi
+  \ifnum#2=8 \global\castleWK=0\relax\fi
+  \ifnum#2=57 \global\castleBQ=0\relax\fi
+  \ifnum#2=64 \global\castleBK=0\relax\fi
+  % En passant square
+  \global\epsquare=0\relax
+  {%
+    \count190=\count\numexpr199+(#2)\relax
+    \count191=\numexpr#2-#1\relax
+    \ifnum\count190=1
+      \ifnum\count191=16
+        \global\epsquare=\numexpr#1+8\relax
+      \fi
+    \fi
+    \ifnum\count190=-1
+      \ifnum\count191=-16
+        \global\epsquare=\numexpr#1-8\relax
+      \fi
+    \fi
+  }%
+  % Half-move clock: reset on pawn move, promotion, en passant, or capture
+  {%
+    \count190=0 % flag: 1 = reset clock
+    \count191=\count\numexpr199+(#2)\relax
+    \ifnum\count191=1 \count190=1 \fi
+    \ifnum\count191=-1 \count190=1 \fi
+    \ifnum#3=3 \count190=1 \fi % promotion
+    \ifnum#3=1 \count190=1 \fi % en passant
+    \ifnum\save@captured=0 \else \count190=1 \fi % capture
+    \ifnum\count190=1
+      \global\halfmoveclock=0\relax
+    \else
+      \global\advance\halfmoveclock by 1\relax
+    \fi
+  }%
+  % Full move number: increment after black moves
+  \ifnum\sidetomove>0
+    \global\advance\fullmovenumber by 1\relax
+  \fi
+}
+
+%% ========================================================
+%% Step 11: Random Move Selection
+%% ========================================================
+
+\newcount\randomindex
+\newcount\pickcounter
+\def\selectedfrom{}
+\def\selectedto{}
+\def\selectedflags{}
+
+\def\pickrandommove{%
+  \ifnum\legalmovecnt>0
+    \randomindex=\numexpr\pdfuniformdeviate\legalmovecnt+1\relax
+    \pickcounter=0\relax
+    \def\moveentry##1##2##3{%
+      \advance\pickcounter by 1\relax
+      \ifnum\pickcounter=\randomindex
+        \gdef\selectedfrom{##1}%
+        \gdef\selectedto{##2}%
+        \gdef\selectedflags{##3}%
+      \fi
+    }%
+    \the\legalmovelist
+  \fi
+}
+
+%% ========================================================
+%% Step 12: User Move Parsing & Validation
+%% ========================================================
+
+\newcount\userfrom
+\newcount\userto
+\newcount\userfromfile
+\newcount\userfromrank
+\newcount\usertofile
+\newcount\usertorank
+\newcount\userflags
+
+\def\parsemove#1{%
+  \parsemove@i#1\parsemove@end
+}
+
+\def\parsemove@i#1#2#3#4#5\parsemove@end{%
+  \def\tmp@test{#3}%
+  \def\tmp@dash{-}%
+  \ifx\tmp@test\tmp@dash
+    \parsemove@dash#4#5\parsemove@end{#1}{#2}%
+  \else
+    \userfromfile=\filetonum{#1}\relax
+    \userfromrank=#2\relax
+    \usertofile=\filetonum{#3}\relax
+    \usertorank=#4\relax
+    \userfrom=\numexpr(\userfromrank-1)*8+\userfromfile\relax
+    \userto=\numexpr(\usertorank-1)*8+\usertofile\relax
+  \fi
+}
+
+\def\parsemove@dash#1#2\parsemove@end#3#4{%
+  \userfromfile=\filetonum{#3}\relax
+  \userfromrank=#4\relax
+  \usertofile=\filetonum{#1}\relax
+  \usertorank=#2\relax
+  \userfrom=\numexpr(\userfromrank-1)*8+\userfromfile\relax
+  \userto=\numexpr(\usertorank-1)*8+\usertofile\relax
+}
+
+\newcount\validresult
+\newcount\validflags
+
+\def\validateusermove{%
+  \validresult=0\relax
+  \def\moveentry##1##2##3{%
+    \ifnum##1=\userfrom
+      \ifnum##2=\userto
+        \validresult=1\relax
+        \validflags=##3\relax
+      \fi
+    \fi
+  }%
+  \the\legalmovelist
+}
+
+%% ========================================================
+%% Step 13: Game Flow & End Detection
+%% ========================================================
+
+\newcount\gameover
+
+\def\checkgameend{%
+  \gameover=0\relax
+  \generatelegal
+  \ifnum\legalmovecnt=0
+    \findkingsquare{\the\sidetomove}%
+    \issquareattacked{\the\kingsquare}{\the\numexpr-\sidetomove\relax}%
+    \ifnum\attackresult=1
+      \global\gameresult=\numexpr-\sidetomove\relax
+      \gameover=1\relax
+    \else
+      \global\gameresult=2\relax
+      \gameover=2\relax
+    \fi
+  \fi
+  \ifnum\halfmoveclock>99
+    \global\gameresult=2\relax
+    \gameover=2\relax
+  \fi
+}
+
+% Format a move as coordinate notation for display
+\def\fmtmove#1#2{%
+  \numtofile{\sqfile{#1}}\sqrank{#1}%
+  \numtofile{\sqfile{#2}}\sqrank{#2}%
+}
+
+% Execute a user move and have engine respond
+\def\playmove#1{%
+  \ifnum\gameresult=0
+    \parsemove{#1}%
+    \generatelegal
+    \validateusermove
+    \ifnum\validresult=0
+      \message{ILLEGAL MOVE: #1}%
+      \errmessage{Illegal move: #1. Aborting.}%
+    \else
+      \makemove{\the\userfrom}{\the\userto}{\the\validflags}%
+      \updategamestate{\the\userfrom}{\the\userto}{\the\validflags}%
+      % Record in history
+      \edef\tmp@hist{\the\movehistory}%
+      \ifnum\sidetomove<0
+        \edef\tmp@hist{\tmp@hist\the\fullmovenumber. #1 }%
+      \else
+        \edef\tmp@hist{\tmp@hist #1\space\space}%
+      \fi
+      \global\movehistory=\expandafter{\tmp@hist}%
+      \checkgameend
+      \ifnum\gameover>0
+        \displaygameresult
+      \else
+        \seedbeforeenginemove
+        \enginemove
+      \fi
+    \fi
+  \fi
+}
+
+\def\enginemove{%
+  \generatelegal
+  \ifnum\legalmovecnt>0
+    \pickrandommove
+    \makemove{\selectedfrom}{\selectedto}{\selectedflags}%
+    \updategamestate{\selectedfrom}{\selectedto}{\selectedflags}%
+    \edef\tmp@hist{\the\movehistory}%
+    \edef\tmp@engmv{\fmtmove{\selectedfrom}{\selectedto}}%
+    \ifnum\sidetomove<0
+      \edef\tmp@hist{\tmp@hist\the\fullmovenumber. \tmp@engmv\space}%
+    \else
+      \edef\tmp@hist{\tmp@hist\tmp@engmv\space\space}%
+    \fi
+    \global\movehistory=\expandafter{\tmp@hist}%
+    \message{Engine plays: \tmp@engmv}%
+    \checkgameend
+    \ifnum\gameover>0
+      \displaygameresult
+    \fi
+  \fi
+}
+
+\def\displaygameresult{%
+  \ifnum\gameresult=1
+    \message{Game over: White wins by checkmate!}%
+  \fi
+  \ifnum\gameresult=-1
+    \message{Game over: Black wins by checkmate!}%
+  \fi
+  \ifnum\gameresult=2
+    \message{Game over: Draw!}%
+  \fi
+}
+
+\def\showmovehistory{%
+  \par\medskip\noindent\textbf{Moves:} \the\movehistory
+  \ifnum\gameresult=1 \textbf{1-0}\fi
+  \ifnum\gameresult=-1 \textbf{0-1}\fi
+  \ifnum\gameresult=2 \textbf{1/2-1/2}\fi
+  \par
+}
+
+%% ========================================================
+%% Step 14: Output for Interactive Mode
+%% ========================================================
+
+\newwrite\engineout
+
+\def\piecetoascii#1{%
+  \ifcase\numexpr#1+6\relax
+    k\or q\or r\or b\or n\or p\or .\or P\or N\or B\or R\or Q\or K\fi
+}
+
+\newcount\asc@rank
+\newcount\asc@file
+\newcount\asc@sq
+\newcount\asc@p
+
+\def\writeengineoutput{%
+  \immediate\openout\engineout=engine-output.dat\relax
+  \immediate\write\engineout{ENGINEMOVE:\tmp@engmv}%
+  \ifnum\gameresult=0
+    \immediate\write\engineout{STATUS:ongoing}%
+  \fi
+  \ifnum\gameresult=1
+    \immediate\write\engineout{STATUS:white_wins}%
+  \fi
+  \ifnum\gameresult=-1
+    \immediate\write\engineout{STATUS:black_wins}%
+  \fi
+  \ifnum\gameresult=2
+    \immediate\write\engineout{STATUS:draw}%
+  \fi
+  \generatefullfen
+  \immediate\write\engineout{FEN:\fenstring}%
+  \immediate\write\engineout{BOARD:}%
+  \asc@rank=8\relax
+  \asc@writeranks
+  \immediate\write\engineout{~~a~b~c~d~e~f~g~h}%
+  \immediate\closeout\engineout
+}
+
+\def\asc@writeranks{%
+  \ifnum\asc@rank>0
+    \def\asc@line{}%
+    \asc@file=1\relax
+    \asc@writefiles
+    \immediate\write\engineout{\the\asc@rank\space\asc@line}%
+    \advance\asc@rank by -1\relax
+    \expandafter\asc@writeranks
+  \fi
+}
+
+\def\asc@writefiles{%
+  \ifnum\asc@file<9
+    \asc@sq=\numexpr(\asc@rank-1)*8+\asc@file\relax
+    \asc@p=\count\numexpr199+\asc@sq\relax
+    \edef\asc@line{\asc@line\space\piecetoascii{\the\asc@p}}%
+    \advance\asc@file by 1\relax
+    \expandafter\asc@writefiles
+  \fi
+}
+
+\def\enginemoveinteractive{%
+  \generatelegal
+  \ifnum\legalmovecnt>0
+    \pickrandommove
+    \makemove{\selectedfrom}{\selectedto}{\selectedflags}%
+    \updategamestate{\selectedfrom}{\selectedto}{\selectedflags}%
+    \edef\tmp@engmv{\fmtmove{\selectedfrom}{\selectedto}}%
+    \edef\tmp@hist{\the\movehistory}%
+    \ifnum\sidetomove<0
+      \edef\tmp@hist{\tmp@hist\the\fullmovenumber. \tmp@engmv\space}%
+    \else
+      \edef\tmp@hist{\tmp@hist\tmp@engmv\space\space}%
+    \fi
+    \global\movehistory=\expandafter{\tmp@hist}%
+    \checkgameend
+    \writeengineoutput
+  \else
+    \edef\tmp@engmv{none}%
+    \writeengineoutput
+  \fi
+}
+
+\def\playmovealiased#1{%
+  \ifnum\gameresult=0
+    \parsemove{#1}%
+    \generatelegal
+    \validateusermove
+    \ifnum\validresult=0
+      \immediate\openout\engineout=engine-output.dat\relax
+      \immediate\write\engineout{ERROR:Illegal move: #1}%
+      \immediate\closeout\engineout
+    \else
+      \makemove{\the\userfrom}{\the\userto}{\the\validflags}%
+      \updategamestate{\the\userfrom}{\the\userto}{\the\validflags}%
+      \edef\tmp@hist{\the\movehistory}%
+      \ifnum\sidetomove<0
+        \edef\tmp@hist{\tmp@hist\the\fullmovenumber. #1 }%
+      \else
+        \edef\tmp@hist{\tmp@hist #1\space\space}%
+      \fi
+      \global\movehistory=\expandafter{\tmp@hist}%
+      \checkgameend
+      \ifnum\gameover>0
+        \edef\tmp@engmv{none}%
+        \writeengineoutput
+      \else
+        \seedbeforeenginemove
+        \enginemoveinteractive
+      \fi
+    \fi
+  \fi
+}
+
+\makeatother
+\endinput
