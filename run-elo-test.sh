@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Run an Elo assessment tournament: TeX Chess Engine vs Stockfish
+set -euo pipefail
+
+# Configuration (override via environment variables)
+GAMES=${GAMES:-100}
+STOCKFISH_ELO=${STOCKFISH_ELO:-800}
+TIME_CONTROL=${TIME_CONTROL:-"40/60+1"}
+PGN_FILE="elo-games.pgn"
+TEX_FILE="elo-games.tex"
+PDF_FILE="elo-games.pdf"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+echo "========================================="
+echo "  TeX Chess Engine Elo Assessment"
+echo "========================================="
+echo "Games: $GAMES"
+echo "Stockfish Elo: $STOCKFISH_ELO"
+echo "Time control: $TIME_CONTROL"
+echo ""
+
+# Check dependencies
+missing=0
+for cmd in cutechess-cli stockfish pdflatex python3; do
+    if ! command -v "$cmd" &>/dev/null; then
+        echo "ERROR: $cmd not found. Please install it first."
+        missing=1
+    fi
+done
+if [ "$missing" -eq 1 ]; then
+    exit 1
+fi
+
+# Make UCI wrapper executable
+chmod +x "$SCRIPT_DIR/chess-uci.py"
+
+# Clean previous work directory
+rm -rf "$SCRIPT_DIR/.tex-uci-work"
+
+echo "Starting tournament..."
+echo ""
+
+ROUNDS=$(( (GAMES + 1) / 2 ))
+if [ "$ROUNDS" -lt 1 ]; then
+    ROUNDS=1
+fi
+
+cutechess-cli \
+    -engine name="TeX Chess Engine" cmd="$SCRIPT_DIR/chess-uci.py" proto=uci \
+    -engine name="Stockfish" cmd=stockfish proto=uci \
+        option.Skill=0 option.UCI_LimitStrength=true option.UCI_Elo="$STOCKFISH_ELO" \
+    -each tc="$TIME_CONTROL" \
+    -rounds "$ROUNDS" -games 2 -repeat \
+    -pgnout "$SCRIPT_DIR/$PGN_FILE" \
+    -recover \
+    -wait 50
+
+echo ""
+echo "Tournament complete!"
+echo "PGN saved to: $SCRIPT_DIR/$PGN_FILE"
+echo ""
+
+# Generate LaTeX book
+echo "Generating LaTeX book..."
+cd "$SCRIPT_DIR"
+python3 pgn2latex.py "$PGN_FILE" "$TEX_FILE"
+
+echo "Compiling PDF..."
+pdflatex -interaction=nonstopmode "$TEX_FILE" >/dev/null 2>&1 || true
+pdflatex -interaction=nonstopmode "$TEX_FILE" >/dev/null 2>&1 || true
+
+echo ""
+echo "========================================="
+echo "  Results"
+echo "========================================="
+echo "PGN file: $SCRIPT_DIR/$PGN_FILE"
+echo "PDF book: $SCRIPT_DIR/$PDF_FILE"
+echo "========================================="

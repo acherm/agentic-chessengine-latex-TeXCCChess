@@ -1,0 +1,14 @@
+% chess-uci.tex -- Minimal TeX entry point for UCI mode
+% Replays moves from uci-moves.tex, then generates one engine response.
+% No board rendering (no chessboard package) for faster compilation.
+\documentclass{article}
+\input{chess-engine}
+\begin{document}
+\makeatletter
+\def\gameseed{1}
+\initboard
+\initgamestate
+\input{uci-moves}
+\generateengineresponse
+\makeatother
+\end{document}

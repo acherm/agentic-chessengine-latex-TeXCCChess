@@ -1074,8 +1074,16 @@
 \newcount\usertofile
 \newcount\usertorank
 \newcount\userflags
+\newcount\promotiontarget  % 5=Q, 4=R, 3=B, 2=N (for underpromotion support)
+
+% Promotion piece value lookup
+\expandafter\def\csname promoval@q\endcsname{5}
+\expandafter\def\csname promoval@r\endcsname{4}
+\expandafter\def\csname promoval@b\endcsname{3}
+\expandafter\def\csname promoval@n\endcsname{2}
 
 \def\parsemove#1{%
+  \promotiontarget=5\relax
   \parsemove@i#1\parsemove@end
 }
 
@@ -1091,6 +1099,7 @@
     \usertorank=#4\relax
     \userfrom=\numexpr(\userfromrank-1)*8+\userfromfile\relax
     \userto=\numexpr(\usertorank-1)*8+\usertofile\relax
+    \parsemove@handlepromo#5\parsemove@promoend
   \fi
 }
 
@@ -1101,6 +1110,14 @@
   \usertorank=#2\relax
   \userfrom=\numexpr(\userfromrank-1)*8+\userfromfile\relax
   \userto=\numexpr(\usertorank-1)*8+\usertofile\relax
+}
+
+% Handle optional promotion suffix (q/r/b/n) from 5th character of move
+\def\parsemove@handlepromo#1\parsemove@promoend{%
+  \def\pm@tmp{#1}%
+  \ifx\pm@tmp\@empty\else
+    \promotiontarget=\csname promoval@#1\endcsname\relax
+  \fi
 }
 
 \newcount\validresult
@@ -1335,6 +1352,64 @@
         \enginemoveinteractive
       \fi
     \fi
+  \fi
+}
+
+%% ========================================================
+%% Step 15: UCI Support — Replay Moves & Engine Response
+%% ========================================================
+
+% Replay a single move (either color, no engine response).
+% Used by the UCI wrapper to replay the position before generating a response.
+\def\replaymove#1{%
+  \ifnum\gameresult=0
+    \parsemove{#1}%
+    \generatelegal
+    \validateusermove
+    \ifnum\validresult=1
+      \edef\replay@side{\the\sidetomove}%
+      \makemove{\the\userfrom}{\the\userto}{\the\validflags}%
+      \updategamestate{\the\userfrom}{\the\userto}{\the\validflags}%
+      % Underpromotion fixup: if promotion to non-queen piece
+      \ifnum\validflags=3
+        \ifnum\promotiontarget<5
+          \setsq{\the\userto}{\the\numexpr\promotiontarget*\replay@side\relax}%
+        \fi
+      \fi
+      % Update hash for RNG continuity
+      \seedbeforeenginemove
+      % Record in history
+      \edef\tmp@hist{\the\movehistory}%
+      \ifnum\sidetomove<0
+        \edef\tmp@hist{\tmp@hist\the\fullmovenumber. #1 }%
+      \else
+        \edef\tmp@hist{\tmp@hist #1\space\space}%
+      \fi
+      \global\movehistory=\expandafter{\tmp@hist}%
+      \checkgameend
+    \fi
+  \fi
+}
+
+% Generate one engine move and write it to engine-output.dat.
+% Used by the UCI wrapper after replaying all prior moves.
+\def\generateengineresponse{%
+  \ifnum\gameresult=0
+    \pdfsetrandomseed\gamehash\relax
+    \generatelegal
+    \ifnum\legalmovecnt>0
+      \pickrandommove
+      \makemove{\selectedfrom}{\selectedto}{\selectedflags}%
+      \updategamestate{\selectedfrom}{\selectedto}{\selectedflags}%
+      \edef\tmp@engmv{\fmtmove{\selectedfrom}{\selectedto}}%
+      % Append promotion suffix for UCI format
+      \ifnum\selectedflags=3 \edef\tmp@engmv{\tmp@engmv q}\fi
+      \checkgameend
+    \else
+      \checkgameend
+      \edef\tmp@engmv{none}%
+    \fi
+    \writeengineoutput
   \fi
 }
 
