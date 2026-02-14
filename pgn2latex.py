@@ -103,72 +103,78 @@ class Board:
 
         return False
 
+    @staticmethod
+    def _sq_name(file, rank):
+        """Convert (file 0-7, rank 0-7) to algebraic notation like 'e4'."""
+        return chr(ord("a") + file) + str(rank + 1)
+
     def apply_san(self, san):
-        """Apply a move in Standard Algebraic Notation."""
+        """Apply a move in SAN. Returns coordinate notation (e.g. 'e2e4')."""
         # Strip check/mate symbols
-        san = san.rstrip("+#")
+        clean = san.rstrip("+#")
 
         is_white = self.is_white_turn
 
         # Castling
-        if san in ("O-O", "0-0"):
+        if clean in ("O-O", "0-0"):
             rank = 0 if is_white else 7
             self._do_move(4, rank, 6, rank)
             self._do_move(7, rank, 5, rank)
             self.ep_file = -1
             self.is_white_turn = not self.is_white_turn
-            return
+            return self._sq_name(4, rank) + self._sq_name(6, rank)
 
-        if san in ("O-O-O", "0-0-0"):
+        if clean in ("O-O-O", "0-0-0"):
             rank = 0 if is_white else 7
             self._do_move(4, rank, 2, rank)
             self._do_move(0, rank, 3, rank)
             self.ep_file = -1
             self.is_white_turn = not self.is_white_turn
-            return
+            return self._sq_name(4, rank) + self._sq_name(2, rank)
 
         # Parse promotion
         promo = None
-        if "=" in san:
-            idx = san.index("=")
-            promo = san[idx + 1]
-            san = san[:idx]
+        if "=" in clean:
+            idx = clean.index("=")
+            promo = clean[idx + 1]
+            clean = clean[:idx]
 
         # Parse target square (always the last two characters)
-        target_file = ord(san[-2]) - ord("a")
-        target_rank = int(san[-1]) - 1
-        san = san[:-2]
+        target_file = ord(clean[-2]) - ord("a")
+        target_rank = int(clean[-1]) - 1
+        clean = clean[:-2]
 
         # Remove capture indicator
-        san = san.replace("x", "")
+        clean = clean.replace("x", "")
 
         # Determine piece type and disambiguation
-        if not san:
+        if not clean:
             # Pawn move
             piece_char = "P" if is_white else "p"
             disambig_file = None
             disambig_rank = None
-        elif san[0] in "KQRBN":
-            piece_char = san[0] if is_white else san[0].lower()
-            san = san[1:]
+        elif clean[0] in "KQRBN":
+            piece_char = clean[0] if is_white else clean[0].lower()
+            clean = clean[1:]
             disambig_file = None
             disambig_rank = None
-            if len(san) >= 2:
-                disambig_file = ord(san[0]) - ord("a")
-                disambig_rank = int(san[1]) - 1
-            elif len(san) == 1:
-                if "a" <= san[0] <= "h":
-                    disambig_file = ord(san[0]) - ord("a")
+            if len(clean) >= 2:
+                disambig_file = ord(clean[0]) - ord("a")
+                disambig_rank = int(clean[1]) - 1
+            elif len(clean) == 1:
+                if "a" <= clean[0] <= "h":
+                    disambig_file = ord(clean[0]) - ord("a")
                 else:
-                    disambig_rank = int(san[0]) - 1
+                    disambig_rank = int(clean[0]) - 1
         else:
-            # Pawn with file disambiguation (e.g., "exd4" -> san is "e")
+            # Pawn with file disambiguation (e.g., "exd4" -> clean is "e")
             piece_char = "P" if is_white else "p"
-            disambig_file = ord(san[0]) - ord("a")
+            disambig_file = ord(clean[0]) - ord("a")
             disambig_rank = None
 
         # Find the source square
         found = False
+        from_file = from_rank = 0
         for rank in range(8):
             for file in range(8):
                 piece = self.get(file, rank)
@@ -188,7 +194,14 @@ class Board:
         if not found:
             sys.stderr.write("WARNING: Could not resolve SAN move: %s\n" % san)
             self.is_white_turn = not self.is_white_turn
-            return
+            return None
+
+        # Build coordinate notation
+        coord = self._sq_name(from_file, from_rank) + self._sq_name(
+            target_file, target_rank
+        )
+        if promo:
+            coord += promo.lower()
 
         # Detect en passant capture
         is_ep = False
@@ -215,6 +228,7 @@ class Board:
 
         self.ep_file = new_ep_file
         self.is_white_turn = not self.is_white_turn
+        return coord
 
     def _do_move(self, ff, fr, tf, tr):
         """Move piece from (ff,fr) to (tf,tr)."""
@@ -524,19 +538,174 @@ def generate_latex(games, output_file):
         f.write("\\end{document}\n")
 
 
+def convert_game_moves(game):
+    """Convert a game's SAN moves to coordinate notation using Board tracker.
+
+    Returns list of (san, coord) tuples.
+    """
+    board = Board()
+    pairs = []
+    for san in game["moves"]:
+        coord = board.apply_san(san)
+        pairs.append((san, coord))
+    return pairs
+
+
+def generate_latex_native(games, output_file):
+    """Generate LaTeX that uses the TeX chess engine's own macros.
+
+    Board tracking and rendering is done by \\replaymove + \\showboard
+    from chess-engine.tex, not by Python.  Python only converts SAN to
+    coordinate notation and writes the .tex file.
+    """
+    if not games:
+        print("No games found.")
+        return
+
+    tex_name, sf_name = identify_players(games)
+    tex_wins, sf_wins, draws = compute_stats(games, tex_name, sf_name)
+    interesting = find_interesting_games(games, tex_name)
+
+    with open(output_file, "w") as f:
+        f.write("\\documentclass[11pt]{article}\n")
+        f.write("\\usepackage[utf8]{inputenc}\n")
+        f.write("\\usepackage{chessboard}\n")
+        f.write("\\usepackage{geometry}\n")
+        f.write("\\usepackage{parskip}\n")
+        f.write("\\geometry{margin=1in}\n")
+        f.write("\\input{chess-engine}\n")
+        f.write("\n\\begin{document}\n")
+        f.write("\\makeatletter\n\n")
+        f.write(
+            "\\title{"
+            + escape_latex(tex_name)
+            + " vs "
+            + escape_latex(sf_name)
+            + " --- Elo Assessment (Native \\TeX\\ Boards)}\n"
+        )
+        f.write("\\date{\\today}\n")
+        f.write("\\maketitle\n\n")
+
+        # Summary
+        f.write("\\section*{Summary}\n")
+        f.write("\\begin{tabular}{ll}\n")
+        f.write("Total games: & %d \\\\\n" % len(games))
+        f.write("%s wins: & %d \\\\\n" % (escape_latex(tex_name), tex_wins))
+        f.write("%s wins: & %d \\\\\n" % (escape_latex(sf_name), sf_wins))
+        f.write("Draws: & %d \\\\\n" % draws)
+        if len(games) > 0:
+            score = (tex_wins + draws * 0.5) / len(games)
+            f.write(
+                "Score for %s: & %.1f\\%% \\\\\n"
+                % (escape_latex(tex_name), score * 100)
+            )
+        f.write("\\end{tabular}\n\n")
+        f.write("\\bigskip\n\n")
+
+        for i, game in enumerate(games):
+            game_num = i + 1
+            move_pairs = convert_game_moves(game)
+            is_interesting = i in interesting and len(move_pairs) > 4
+
+            f.write(
+                "\\subsection*{Game %d: %s vs %s (%s)}\n"
+                % (
+                    game_num,
+                    escape_latex(game["white"]),
+                    escape_latex(game["black"]),
+                    game["result"],
+                )
+            )
+
+            # SAN move list as readable text
+            move_text = ""
+            for j, (san, _coord) in enumerate(move_pairs):
+                if j % 2 == 0:
+                    move_text += "%d.~%s " % (j // 2 + 1, escape_latex(san))
+                else:
+                    move_text += "%s " % escape_latex(san)
+            move_text += game["result"]
+            f.write("\\noindent %s\n\n" % move_text)
+
+            # Initialize the TeX engine and replay moves
+            f.write("\\medskip\n")
+            f.write("\\initboard\n")
+            f.write("\\initgamestate\n")
+
+            # Compute board display points for interesting games
+            if is_interesting:
+                step = max(2, len(move_pairs) // 6)
+                show_at = set()
+                for j in range(len(move_pairs)):
+                    if (j + 1) % step == 0 and j < len(move_pairs) - 1:
+                        show_at.add(j)
+
+            for j, (san, coord) in enumerate(move_pairs):
+                if coord is None:
+                    f.write("%% WARNING: unresolved move %s\n" % san)
+                    continue
+                # Comment with SAN for readability
+                if j % 2 == 0:
+                    f.write(
+                        "\\replaymove{%s}%% %d. %s\n"
+                        % (coord, j // 2 + 1, san)
+                    )
+                else:
+                    f.write(
+                        "\\replaymove{%s}%% %d... %s\n"
+                        % (coord, j // 2 + 1, san)
+                    )
+
+                # Show intermediate board for interesting games
+                if is_interesting and j in show_at:
+                    if j % 2 == 0:
+                        desc = "After %d.~%s" % (j // 2 + 1, escape_latex(san))
+                    else:
+                        desc = "After %d\\ldots %s" % (
+                            j // 2 + 1,
+                            escape_latex(san),
+                        )
+                    f.write("\\par\\noindent %s\\\\\n" % desc)
+                    f.write("\\showboard\n")
+                    f.write("\\medskip\n\n")
+
+            # Final position board (rendered by the TeX engine)
+            f.write("\n\\par\\noindent Final position:\\\\\n")
+            f.write("\\showboard\n\n")
+
+            if i < len(games) - 1:
+                f.write("\\hrule\n")
+                f.write("\\bigskip\n\n")
+
+        f.write("\\makeatother\n")
+        f.write("\\end{document}\n")
+
+
 def main():
     if len(sys.argv) < 3:
-        print("Usage: %s <pgn-file> <output-tex-file>" % sys.argv[0])
+        print(
+            "Usage: %s [--native] <pgn-file> <output-tex-file>" % sys.argv[0]
+        )
         sys.exit(1)
 
-    pgn_file = sys.argv[1]
-    output_file = sys.argv[2]
+    native = False
+    args = sys.argv[1:]
+    if "--native" in args:
+        native = True
+        args.remove("--native")
+
+    pgn_file = args[0]
+    output_file = args[1]
 
     games = parse_pgn(pgn_file)
     print("Parsed %d games from %s" % (len(games), pgn_file))
 
-    generate_latex(games, output_file)
-    print("Generated LaTeX file: %s" % output_file)
+    if native:
+        generate_latex_native(games, output_file)
+        print("Generated native TeX file: %s" % output_file)
+    else:
+        generate_latex(games, output_file)
+        print("Generated LaTeX file: %s" % output_file)
 
 
 if __name__ == "__main__":

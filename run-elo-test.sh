@@ -9,6 +9,8 @@ TIME_CONTROL=${TIME_CONTROL:-"40/60+1"}
 PGN_FILE="elo-games.pgn"
 TEX_FILE="elo-games.tex"
 PDF_FILE="elo-games.pdf"
+NATIVE_TEX_FILE="elo-games-native.tex"
+NATIVE_PDF_FILE="elo-games-native.pdf"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -61,19 +63,26 @@ echo "Tournament complete!"
 echo "PGN saved to: $SCRIPT_DIR/$PGN_FILE"
 echo ""
 
-# Generate LaTeX book
-echo "Generating LaTeX book..."
+# Generate LaTeX books
 cd "$SCRIPT_DIR"
-python3 pgn2latex.py "$PGN_FILE" "$TEX_FILE"
 
+echo "Generating LaTeX book (Python FEN mode)..."
+python3 pgn2latex.py "$PGN_FILE" "$TEX_FILE"
 echo "Compiling PDF..."
 pdflatex -interaction=nonstopmode "$TEX_FILE" >/dev/null 2>&1 || true
 pdflatex -interaction=nonstopmode "$TEX_FILE" >/dev/null 2>&1 || true
+
+echo "Generating LaTeX book (native TeX engine boards)..."
+python3 pgn2latex.py --native "$PGN_FILE" "$NATIVE_TEX_FILE"
+echo "Compiling PDF..."
+pdflatex -interaction=nonstopmode "$NATIVE_TEX_FILE" >/dev/null 2>&1 || true
+pdflatex -interaction=nonstopmode "$NATIVE_TEX_FILE" >/dev/null 2>&1 || true
 
 echo ""
 echo "========================================="
 echo "  Results"
 echo "========================================="
-echo "PGN file: $SCRIPT_DIR/$PGN_FILE"
-echo "PDF book: $SCRIPT_DIR/$PDF_FILE"
+echo "PGN file:          $SCRIPT_DIR/$PGN_FILE"
+echo "PDF (Python FEN):  $SCRIPT_DIR/$PDF_FILE"
+echo "PDF (native TeX):  $SCRIPT_DIR/$NATIVE_PDF_FILE"
 echo "========================================="
