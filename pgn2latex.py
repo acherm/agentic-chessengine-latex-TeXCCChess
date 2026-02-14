@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Convert PGN file to LaTeX document with board diagrams.
 
-Parses PGN output from cutechess-cli, tracks board state to generate
-FEN positions, and produces a LaTeX document using the chessboard package.
+Parses PGN output from cutechess-cli (Standard Algebraic Notation),
+tracks board state to generate FEN positions, and produces a LaTeX
+document using the chessboard package.
 """
 
 import sys
@@ -22,13 +23,15 @@ INITIAL_BOARD = [
 
 
 class Board:
-    """Simple chess board tracker for generating FEN positions."""
+    """Chess board tracker with SAN move resolution."""
 
     def __init__(self):
         self.reset()
 
     def reset(self):
         self.board = [row[:] for row in INITIAL_BOARD]
+        self.is_white_turn = True
+        self.ep_file = -1  # en passant target file (-1 = none)
 
     def get(self, file, rank):
         """Get piece at (file 0-7, rank 0-7). Rank 0 = rank 1."""
@@ -37,40 +40,187 @@ class Board:
     def set(self, file, rank, piece):
         self.board[rank][file] = piece
 
-    def apply_move(self, move):
-        """Apply a move in coordinate notation (e.g., e2e4, e7e8q)."""
-        ff = ord(move[0]) - ord("a")
-        fr = int(move[1]) - 1
-        tf = ord(move[2]) - ord("a")
-        tr = int(move[3]) - 1
-        promo = move[4] if len(move) > 4 else None
+    def path_clear(self, ff, fr, tf, tr):
+        """Check if path between two squares is unobstructed (exclusive)."""
+        df = tf - ff
+        dr = tr - fr
+        steps = max(abs(df), abs(dr))
+        if steps <= 1:
+            return True
+        sf = (1 if df > 0 else -1) if df != 0 else 0
+        sr = (1 if dr > 0 else -1) if dr != 0 else 0
+        for i in range(1, steps):
+            if self.get(ff + i * sf, fr + i * sr) != ".":
+                return False
+        return True
 
-        piece = self.get(ff, fr)
-        captured = self.get(tf, tr)
+    def can_reach(self, ff, fr, tf, tr, piece):
+        """Check if piece at (ff,fr) can geometrically reach (tf,tr)."""
+        p = piece.upper()
+        df = tf - ff
+        dr = tr - fr
 
-        # Move piece
-        self.set(tf, tr, piece)
-        self.set(ff, fr, ".")
+        if p == "P":
+            direction = 1 if piece.isupper() else -1
+            # Forward push
+            if df == 0:
+                if dr == direction and self.get(tf, tr) == ".":
+                    return True
+                start_rank = 1 if piece.isupper() else 6
+                if dr == 2 * direction and fr == start_rank:
+                    if self.get(tf, fr + direction) == "." and self.get(tf, tr) == ".":
+                        return True
+            # Capture (normal or en passant)
+            if abs(df) == 1 and dr == direction:
+                target = self.get(tf, tr)
+                if target != ".":
+                    return True
+                # En passant
+                if tf == self.ep_file:
+                    ep_rank = 5 if piece.isupper() else 2
+                    if tr == ep_rank:
+                        return True
+            return False
 
-        # Castling: king moves two squares
-        if piece in ("K", "k") and abs(tf - ff) == 2:
-            if tf > ff:  # Kingside
-                rook = self.get(7, fr)
-                self.set(5, fr, rook)
-                self.set(7, fr, ".")
-            else:  # Queenside
-                rook = self.get(0, fr)
-                self.set(3, fr, rook)
-                self.set(0, fr, ".")
+        if p == "N":
+            return (abs(df), abs(dr)) in [(1, 2), (2, 1)]
 
-        # En passant: pawn captures to empty square on different file
-        if piece in ("P", "p") and ff != tf and captured == ".":
-            self.set(tf, fr, ".")
+        if p == "K":
+            return abs(df) <= 1 and abs(dr) <= 1
+
+        if p == "R":
+            return (df == 0 or dr == 0) and self.path_clear(ff, fr, tf, tr)
+
+        if p == "B":
+            return abs(df) == abs(dr) and df != 0 and self.path_clear(ff, fr, tf, tr)
+
+        if p == "Q":
+            if df == 0 or dr == 0:
+                return self.path_clear(ff, fr, tf, tr)
+            if abs(df) == abs(dr):
+                return self.path_clear(ff, fr, tf, tr)
+            return False
+
+        return False
+
+    def apply_san(self, san):
+        """Apply a move in Standard Algebraic Notation."""
+        # Strip check/mate symbols
+        san = san.rstrip("+#")
+
+        is_white = self.is_white_turn
+
+        # Castling
+        if san in ("O-O", "0-0"):
+            rank = 0 if is_white else 7
+            self._do_move(4, rank, 6, rank)
+            self._do_move(7, rank, 5, rank)
+            self.ep_file = -1
+            self.is_white_turn = not self.is_white_turn
+            return
+
+        if san in ("O-O-O", "0-0-0"):
+            rank = 0 if is_white else 7
+            self._do_move(4, rank, 2, rank)
+            self._do_move(0, rank, 3, rank)
+            self.ep_file = -1
+            self.is_white_turn = not self.is_white_turn
+            return
+
+        # Parse promotion
+        promo = None
+        if "=" in san:
+            idx = san.index("=")
+            promo = san[idx + 1]
+            san = san[:idx]
+
+        # Parse target square (always the last two characters)
+        target_file = ord(san[-2]) - ord("a")
+        target_rank = int(san[-1]) - 1
+        san = san[:-2]
+
+        # Remove capture indicator
+        san = san.replace("x", "")
+
+        # Determine piece type and disambiguation
+        if not san:
+            # Pawn move
+            piece_char = "P" if is_white else "p"
+            disambig_file = None
+            disambig_rank = None
+        elif san[0] in "KQRBN":
+            piece_char = san[0] if is_white else san[0].lower()
+            san = san[1:]
+            disambig_file = None
+            disambig_rank = None
+            if len(san) >= 2:
+                disambig_file = ord(san[0]) - ord("a")
+                disambig_rank = int(san[1]) - 1
+            elif len(san) == 1:
+                if "a" <= san[0] <= "h":
+                    disambig_file = ord(san[0]) - ord("a")
+                else:
+                    disambig_rank = int(san[0]) - 1
+        else:
+            # Pawn with file disambiguation (e.g., "exd4" -> san is "e")
+            piece_char = "P" if is_white else "p"
+            disambig_file = ord(san[0]) - ord("a")
+            disambig_rank = None
+
+        # Find the source square
+        found = False
+        for rank in range(8):
+            for file in range(8):
+                piece = self.get(file, rank)
+                if piece != piece_char:
+                    continue
+                if disambig_file is not None and file != disambig_file:
+                    continue
+                if disambig_rank is not None and rank != disambig_rank:
+                    continue
+                if self.can_reach(file, rank, target_file, target_rank, piece):
+                    from_file, from_rank = file, rank
+                    found = True
+                    break
+            if found:
+                break
+
+        if not found:
+            sys.stderr.write("WARNING: Could not resolve SAN move: %s\n" % san)
+            self.is_white_turn = not self.is_white_turn
+            return
+
+        # Detect en passant capture
+        is_ep = False
+        if piece_char.upper() == "P" and from_file != target_file:
+            if self.get(target_file, target_rank) == ".":
+                is_ep = True
+
+        # Detect double pawn push for en passant
+        new_ep_file = -1
+        if piece_char.upper() == "P" and abs(target_rank - from_rank) == 2:
+            new_ep_file = target_file
+
+        # Execute the move
+        self._do_move(from_file, from_rank, target_file, target_rank)
+
+        # En passant: remove captured pawn
+        if is_ep:
+            self.set(target_file, from_rank, ".")
 
         # Promotion
         if promo:
-            promo_piece = promo.upper() if piece.isupper() else promo.lower()
-            self.set(tf, tr, promo_piece)
+            promo_piece = promo.upper() if is_white else promo.lower()
+            self.set(target_file, target_rank, promo_piece)
+
+        self.ep_file = new_ep_file
+        self.is_white_turn = not self.is_white_turn
+
+    def _do_move(self, ff, fr, tf, tr):
+        """Move piece from (ff,fr) to (tf,tr)."""
+        piece = self.get(ff, fr)
+        self.set(tf, tr, piece)
+        self.set(ff, fr, ".")
 
     def to_fen(self):
         """Generate FEN piece placement string."""
@@ -113,6 +263,16 @@ def parse_pgn(filename):
     return games
 
 
+# SAN move pattern: piece moves, pawn moves, castling
+_MOVE_RE = re.compile(
+    r"^(?:[KQRBN][a-h]?[1-8]?x?[a-h][1-8]"  # piece moves
+    r"|[a-h]x[a-h][1-8](?:=[QRBN])?"          # pawn captures (with optional promo)
+    r"|[a-h][1-8](?:=[QRBN])?"                 # pawn pushes (with optional promo)
+    r"|O-O-O|O-O|0-0-0|0-0"                    # castling
+    r")[+#]?$"
+)
+
+
 def parse_single_game(text):
     """Parse a single PGN game into headers and moves."""
     headers = {}
@@ -135,20 +295,26 @@ def parse_single_game(text):
 
     movetext = " ".join(movetext_lines)
 
-    # Remove comments
+    # Remove comments {like this}
     movetext = re.sub(r"\{[^}]*\}", "", movetext)
     # Remove result at end
     movetext = re.sub(r"(1-0|0-1|1/2-1/2|\*)\s*$", "", movetext)
 
-    # Extract moves (skip move numbers)
+    # Extract SAN moves (skip move numbers and results)
     moves = []
     for token in movetext.split():
-        token = token.strip().rstrip(".")
+        token = token.strip()
         if not token:
+            continue
+        # Skip move numbers like "1." or "12..." or bare numbers
+        if re.match(r"^\d+\.+$", token):
             continue
         if re.match(r"^\d+$", token):
             continue
-        if re.match(r"^[a-h][1-8][a-h][1-8][qrbn]?$", token):
+        # Skip results
+        if token in ("1-0", "0-1", "1/2-1/2", "*"):
+            continue
+        if _MOVE_RE.match(token):
             moves.append(token)
 
     return {
@@ -308,16 +474,16 @@ def generate_latex(games, output_file):
                 )
             )
 
-            # Move list
+            # Move list and board tracking
             board = Board()
             move_text = ""
             for j, move in enumerate(game["moves"]):
                 if j % 2 == 0:
                     move_num = j // 2 + 1
-                    move_text += "%d.~%s " % (move_num, move)
+                    move_text += "%d.~%s " % (move_num, escape_latex(move))
                 else:
-                    move_text += "%s " % move
-                board.apply_move(move)
+                    move_text += "%s " % escape_latex(move)
+                board.apply_san(move)
 
             move_text += game["result"]
             f.write("\\noindent %s\n\n" % move_text)
@@ -336,13 +502,16 @@ def generate_latex(games, output_file):
                 board2 = Board()
                 step = max(2, len(game["moves"]) // 6)
                 for j, move in enumerate(game["moves"]):
-                    board2.apply_move(move)
+                    board2.apply_san(move)
                     if (j + 1) % step == 0 and j < len(game["moves"]) - 1:
                         fen2 = board2.to_fen()
                         if j % 2 == 0:
-                            desc = "After %d.~%s" % (j // 2 + 1, move)
+                            desc = "After %d.~%s" % (j // 2 + 1, escape_latex(move))
                         else:
-                            desc = "After %d...%s" % (j // 2 + 1, move)
+                            desc = "After %d\\ldots %s" % (
+                                j // 2 + 1,
+                                escape_latex(move),
+                            )
                         f.write("\\noindent %s\\\\\n" % desc)
                         f.write("\\setchessboard{setfen=%s}\n" % fen2)
                         f.write("\\chessboard[style=small]\n")
