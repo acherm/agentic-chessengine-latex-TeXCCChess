@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Configuration (override via environment variables)
 GAMES=${GAMES:-100}
-STOCKFISH_ELO=${STOCKFISH_ELO:-800}
+STOCKFISH_ELO=${STOCKFISH_ELO:-1320}
 TIME_CONTROL=${TIME_CONTROL:-"40/60+1"}
 PGN_FILE="elo-games.pgn"
 TEX_FILE="elo-games.tex"
@@ -37,7 +37,10 @@ fi
 # Make UCI wrapper executable
 chmod +x "$SCRIPT_DIR/chess-uci.py"
 
-# Clean previous work directory
+# Clean previous results and work directory
+rm -f "$SCRIPT_DIR/$PGN_FILE"
+rm -f "$SCRIPT_DIR/$TEX_FILE" "$SCRIPT_DIR/$PDF_FILE"
+rm -f "$SCRIPT_DIR/$NATIVE_TEX_FILE" "$SCRIPT_DIR/$NATIVE_PDF_FILE"
 rm -rf "$SCRIPT_DIR/.tex-uci-work"
 
 echo "Starting tournament..."
@@ -51,7 +54,7 @@ fi
 cutechess-cli \
     -engine name="TeX Chess Engine" cmd="$SCRIPT_DIR/chess-uci.py" proto=uci \
     -engine name="Stockfish" cmd=stockfish proto=uci \
-        option.Skill=0 option.UCI_LimitStrength=true option.UCI_Elo="$STOCKFISH_ELO" \
+        "option.Skill Level=0" option.UCI_LimitStrength=true option.UCI_Elo="$STOCKFISH_ELO" \
     -each tc="$TIME_CONTROL" \
     -rounds "$ROUNDS" -games 2 -repeat \
     -pgnout "$SCRIPT_DIR/$PGN_FILE" \

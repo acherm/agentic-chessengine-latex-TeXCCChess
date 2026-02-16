@@ -35,6 +35,74 @@
   \advance\count190 by 1\relax
 \repeat
 
+% Precompute mirror table for PST: mirror(sq) = (8-rank)*8+file
+% Used for black pieces: look up PST from white's perspective with mirrored square
+\count190=1\relax
+\loop\ifnum\count190<65
+  \count191=\csname sq@file@\the\count190\endcsname\relax  % file 1-8
+  \count192=\csname sq@rank@\the\count190\endcsname\relax  % rank 1-8
+  % mirror rank: 9-rank
+  \count193=\numexpr(9-\count192-1)*8+\count191\relax
+  \expandafter\edef\csname sq@mirror@\the\count190\endcsname{\the\count193}%
+  \advance\count190 by 1\relax
+\repeat
+
+% --- Piece-Square Tables (Simplified Eval Function, white perspective) ---
+% Pawn PST (sq 1-64, a1=1, rank 1 at bottom)
+\expandafter\def\csname psq@1@1\endcsname{0}\expandafter\def\csname psq@1@2\endcsname{0}\expandafter\def\csname psq@1@3\endcsname{0}\expandafter\def\csname psq@1@4\endcsname{0}\expandafter\def\csname psq@1@5\endcsname{0}\expandafter\def\csname psq@1@6\endcsname{0}\expandafter\def\csname psq@1@7\endcsname{0}\expandafter\def\csname psq@1@8\endcsname{0}%
+\expandafter\def\csname psq@1@9\endcsname{5}\expandafter\def\csname psq@1@10\endcsname{10}\expandafter\def\csname psq@1@11\endcsname{10}\expandafter\def\csname psq@1@12\endcsname{-20}\expandafter\def\csname psq@1@13\endcsname{-20}\expandafter\def\csname psq@1@14\endcsname{10}\expandafter\def\csname psq@1@15\endcsname{10}\expandafter\def\csname psq@1@16\endcsname{5}%
+\expandafter\def\csname psq@1@17\endcsname{5}\expandafter\def\csname psq@1@18\endcsname{-5}\expandafter\def\csname psq@1@19\endcsname{-10}\expandafter\def\csname psq@1@20\endcsname{0}\expandafter\def\csname psq@1@21\endcsname{0}\expandafter\def\csname psq@1@22\endcsname{-10}\expandafter\def\csname psq@1@23\endcsname{-5}\expandafter\def\csname psq@1@24\endcsname{5}%
+\expandafter\def\csname psq@1@25\endcsname{0}\expandafter\def\csname psq@1@26\endcsname{0}\expandafter\def\csname psq@1@27\endcsname{0}\expandafter\def\csname psq@1@28\endcsname{20}\expandafter\def\csname psq@1@29\endcsname{20}\expandafter\def\csname psq@1@30\endcsname{0}\expandafter\def\csname psq@1@31\endcsname{0}\expandafter\def\csname psq@1@32\endcsname{0}%
+\expandafter\def\csname psq@1@33\endcsname{5}\expandafter\def\csname psq@1@34\endcsname{5}\expandafter\def\csname psq@1@35\endcsname{10}\expandafter\def\csname psq@1@36\endcsname{25}\expandafter\def\csname psq@1@37\endcsname{25}\expandafter\def\csname psq@1@38\endcsname{10}\expandafter\def\csname psq@1@39\endcsname{5}\expandafter\def\csname psq@1@40\endcsname{5}%
+\expandafter\def\csname psq@1@41\endcsname{10}\expandafter\def\csname psq@1@42\endcsname{10}\expandafter\def\csname psq@1@43\endcsname{20}\expandafter\def\csname psq@1@44\endcsname{30}\expandafter\def\csname psq@1@45\endcsname{30}\expandafter\def\csname psq@1@46\endcsname{20}\expandafter\def\csname psq@1@47\endcsname{10}\expandafter\def\csname psq@1@48\endcsname{10}%
+\expandafter\def\csname psq@1@49\endcsname{50}\expandafter\def\csname psq@1@50\endcsname{50}\expandafter\def\csname psq@1@51\endcsname{50}\expandafter\def\csname psq@1@52\endcsname{50}\expandafter\def\csname psq@1@53\endcsname{50}\expandafter\def\csname psq@1@54\endcsname{50}\expandafter\def\csname psq@1@55\endcsname{50}\expandafter\def\csname psq@1@56\endcsname{50}%
+\expandafter\def\csname psq@1@57\endcsname{0}\expandafter\def\csname psq@1@58\endcsname{0}\expandafter\def\csname psq@1@59\endcsname{0}\expandafter\def\csname psq@1@60\endcsname{0}\expandafter\def\csname psq@1@61\endcsname{0}\expandafter\def\csname psq@1@62\endcsname{0}\expandafter\def\csname psq@1@63\endcsname{0}\expandafter\def\csname psq@1@64\endcsname{0}%
+% Knight PST
+\expandafter\def\csname psq@2@1\endcsname{-50}\expandafter\def\csname psq@2@2\endcsname{-40}\expandafter\def\csname psq@2@3\endcsname{-30}\expandafter\def\csname psq@2@4\endcsname{-30}\expandafter\def\csname psq@2@5\endcsname{-30}\expandafter\def\csname psq@2@6\endcsname{-30}\expandafter\def\csname psq@2@7\endcsname{-40}\expandafter\def\csname psq@2@8\endcsname{-50}%
+\expandafter\def\csname psq@2@9\endcsname{-40}\expandafter\def\csname psq@2@10\endcsname{-20}\expandafter\def\csname psq@2@11\endcsname{0}\expandafter\def\csname psq@2@12\endcsname{5}\expandafter\def\csname psq@2@13\endcsname{5}\expandafter\def\csname psq@2@14\endcsname{0}\expandafter\def\csname psq@2@15\endcsname{-20}\expandafter\def\csname psq@2@16\endcsname{-40}%
+\expandafter\def\csname psq@2@17\endcsname{-30}\expandafter\def\csname psq@2@18\endcsname{0}\expandafter\def\csname psq@2@19\endcsname{10}\expandafter\def\csname psq@2@20\endcsname{15}\expandafter\def\csname psq@2@21\endcsname{15}\expandafter\def\csname psq@2@22\endcsname{10}\expandafter\def\csname psq@2@23\endcsname{0}\expandafter\def\csname psq@2@24\endcsname{-30}%
+\expandafter\def\csname psq@2@25\endcsname{-30}\expandafter\def\csname psq@2@26\endcsname{5}\expandafter\def\csname psq@2@27\endcsname{15}\expandafter\def\csname psq@2@28\endcsname{20}\expandafter\def\csname psq@2@29\endcsname{20}\expandafter\def\csname psq@2@30\endcsname{15}\expandafter\def\csname psq@2@31\endcsname{5}\expandafter\def\csname psq@2@32\endcsname{-30}%
+\expandafter\def\csname psq@2@33\endcsname{-30}\expandafter\def\csname psq@2@34\endcsname{0}\expandafter\def\csname psq@2@35\endcsname{15}\expandafter\def\csname psq@2@36\endcsname{20}\expandafter\def\csname psq@2@37\endcsname{20}\expandafter\def\csname psq@2@38\endcsname{15}\expandafter\def\csname psq@2@39\endcsname{0}\expandafter\def\csname psq@2@40\endcsname{-30}%
+\expandafter\def\csname psq@2@41\endcsname{-30}\expandafter\def\csname psq@2@42\endcsname{5}\expandafter\def\csname psq@2@43\endcsname{10}\expandafter\def\csname psq@2@44\endcsname{15}\expandafter\def\csname psq@2@45\endcsname{15}\expandafter\def\csname psq@2@46\endcsname{10}\expandafter\def\csname psq@2@47\endcsname{5}\expandafter\def\csname psq@2@48\endcsname{-30}%
+\expandafter\def\csname psq@2@49\endcsname{-40}\expandafter\def\csname psq@2@50\endcsname{-20}\expandafter\def\csname psq@2@51\endcsname{0}\expandafter\def\csname psq@2@52\endcsname{0}\expandafter\def\csname psq@2@53\endcsname{0}\expandafter\def\csname psq@2@54\endcsname{0}\expandafter\def\csname psq@2@55\endcsname{-20}\expandafter\def\csname psq@2@56\endcsname{-40}%
+\expandafter\def\csname psq@2@57\endcsname{-50}\expandafter\def\csname psq@2@58\endcsname{-40}\expandafter\def\csname psq@2@59\endcsname{-30}\expandafter\def\csname psq@2@60\endcsname{-30}\expandafter\def\csname psq@2@61\endcsname{-30}\expandafter\def\csname psq@2@62\endcsname{-30}\expandafter\def\csname psq@2@63\endcsname{-40}\expandafter\def\csname psq@2@64\endcsname{-50}%
+% Bishop PST
+\expandafter\def\csname psq@3@1\endcsname{-20}\expandafter\def\csname psq@3@2\endcsname{-10}\expandafter\def\csname psq@3@3\endcsname{-10}\expandafter\def\csname psq@3@4\endcsname{-10}\expandafter\def\csname psq@3@5\endcsname{-10}\expandafter\def\csname psq@3@6\endcsname{-10}\expandafter\def\csname psq@3@7\endcsname{-10}\expandafter\def\csname psq@3@8\endcsname{-20}%
+\expandafter\def\csname psq@3@9\endcsname{-10}\expandafter\def\csname psq@3@10\endcsname{5}\expandafter\def\csname psq@3@11\endcsname{0}\expandafter\def\csname psq@3@12\endcsname{0}\expandafter\def\csname psq@3@13\endcsname{0}\expandafter\def\csname psq@3@14\endcsname{0}\expandafter\def\csname psq@3@15\endcsname{5}\expandafter\def\csname psq@3@16\endcsname{-10}%
+\expandafter\def\csname psq@3@17\endcsname{-10}\expandafter\def\csname psq@3@18\endcsname{10}\expandafter\def\csname psq@3@19\endcsname{10}\expandafter\def\csname psq@3@20\endcsname{10}\expandafter\def\csname psq@3@21\endcsname{10}\expandafter\def\csname psq@3@22\endcsname{10}\expandafter\def\csname psq@3@23\endcsname{10}\expandafter\def\csname psq@3@24\endcsname{-10}%
+\expandafter\def\csname psq@3@25\endcsname{-10}\expandafter\def\csname psq@3@26\endcsname{0}\expandafter\def\csname psq@3@27\endcsname{10}\expandafter\def\csname psq@3@28\endcsname{10}\expandafter\def\csname psq@3@29\endcsname{10}\expandafter\def\csname psq@3@30\endcsname{10}\expandafter\def\csname psq@3@31\endcsname{0}\expandafter\def\csname psq@3@32\endcsname{-10}%
+\expandafter\def\csname psq@3@33\endcsname{-10}\expandafter\def\csname psq@3@34\endcsname{5}\expandafter\def\csname psq@3@35\endcsname{5}\expandafter\def\csname psq@3@36\endcsname{10}\expandafter\def\csname psq@3@37\endcsname{10}\expandafter\def\csname psq@3@38\endcsname{5}\expandafter\def\csname psq@3@39\endcsname{5}\expandafter\def\csname psq@3@40\endcsname{-10}%
+\expandafter\def\csname psq@3@41\endcsname{-10}\expandafter\def\csname psq@3@42\endcsname{0}\expandafter\def\csname psq@3@43\endcsname{5}\expandafter\def\csname psq@3@44\endcsname{10}\expandafter\def\csname psq@3@45\endcsname{10}\expandafter\def\csname psq@3@46\endcsname{5}\expandafter\def\csname psq@3@47\endcsname{0}\expandafter\def\csname psq@3@48\endcsname{-10}%
+\expandafter\def\csname psq@3@49\endcsname{-10}\expandafter\def\csname psq@3@50\endcsname{0}\expandafter\def\csname psq@3@51\endcsname{0}\expandafter\def\csname psq@3@52\endcsname{0}\expandafter\def\csname psq@3@53\endcsname{0}\expandafter\def\csname psq@3@54\endcsname{0}\expandafter\def\csname psq@3@55\endcsname{0}\expandafter\def\csname psq@3@56\endcsname{-10}%
+\expandafter\def\csname psq@3@57\endcsname{-20}\expandafter\def\csname psq@3@58\endcsname{-10}\expandafter\def\csname psq@3@59\endcsname{-10}\expandafter\def\csname psq@3@60\endcsname{-10}\expandafter\def\csname psq@3@61\endcsname{-10}\expandafter\def\csname psq@3@62\endcsname{-10}\expandafter\def\csname psq@3@63\endcsname{-10}\expandafter\def\csname psq@3@64\endcsname{-20}%
+% Rook PST
+\expandafter\def\csname psq@4@1\endcsname{0}\expandafter\def\csname psq@4@2\endcsname{0}\expandafter\def\csname psq@4@3\endcsname{0}\expandafter\def\csname psq@4@4\endcsname{5}\expandafter\def\csname psq@4@5\endcsname{5}\expandafter\def\csname psq@4@6\endcsname{0}\expandafter\def\csname psq@4@7\endcsname{0}\expandafter\def\csname psq@4@8\endcsname{0}%
+\expandafter\def\csname psq@4@9\endcsname{-5}\expandafter\def\csname psq@4@10\endcsname{0}\expandafter\def\csname psq@4@11\endcsname{0}\expandafter\def\csname psq@4@12\endcsname{0}\expandafter\def\csname psq@4@13\endcsname{0}\expandafter\def\csname psq@4@14\endcsname{0}\expandafter\def\csname psq@4@15\endcsname{0}\expandafter\def\csname psq@4@16\endcsname{-5}%
+\expandafter\def\csname psq@4@17\endcsname{-5}\expandafter\def\csname psq@4@18\endcsname{0}\expandafter\def\csname psq@4@19\endcsname{0}\expandafter\def\csname psq@4@20\endcsname{0}\expandafter\def\csname psq@4@21\endcsname{0}\expandafter\def\csname psq@4@22\endcsname{0}\expandafter\def\csname psq@4@23\endcsname{0}\expandafter\def\csname psq@4@24\endcsname{-5}%
+\expandafter\def\csname psq@4@25\endcsname{-5}\expandafter\def\csname psq@4@26\endcsname{0}\expandafter\def\csname psq@4@27\endcsname{0}\expandafter\def\csname psq@4@28\endcsname{0}\expandafter\def\csname psq@4@29\endcsname{0}\expandafter\def\csname psq@4@30\endcsname{0}\expandafter\def\csname psq@4@31\endcsname{0}\expandafter\def\csname psq@4@32\endcsname{-5}%
+\expandafter\def\csname psq@4@33\endcsname{-5}\expandafter\def\csname psq@4@34\endcsname{0}\expandafter\def\csname psq@4@35\endcsname{0}\expandafter\def\csname psq@4@36\endcsname{0}\expandafter\def\csname psq@4@37\endcsname{0}\expandafter\def\csname psq@4@38\endcsname{0}\expandafter\def\csname psq@4@39\endcsname{0}\expandafter\def\csname psq@4@40\endcsname{-5}%
+\expandafter\def\csname psq@4@41\endcsname{-5}\expandafter\def\csname psq@4@42\endcsname{0}\expandafter\def\csname psq@4@43\endcsname{0}\expandafter\def\csname psq@4@44\endcsname{0}\expandafter\def\csname psq@4@45\endcsname{0}\expandafter\def\csname psq@4@46\endcsname{0}\expandafter\def\csname psq@4@47\endcsname{0}\expandafter\def\csname psq@4@48\endcsname{-5}%
+\expandafter\def\csname psq@4@49\endcsname{5}\expandafter\def\csname psq@4@50\endcsname{10}\expandafter\def\csname psq@4@51\endcsname{10}\expandafter\def\csname psq@4@52\endcsname{10}\expandafter\def\csname psq@4@53\endcsname{10}\expandafter\def\csname psq@4@54\endcsname{10}\expandafter\def\csname psq@4@55\endcsname{10}\expandafter\def\csname psq@4@56\endcsname{5}%
+\expandafter\def\csname psq@4@57\endcsname{0}\expandafter\def\csname psq@4@58\endcsname{0}\expandafter\def\csname psq@4@59\endcsname{0}\expandafter\def\csname psq@4@60\endcsname{0}\expandafter\def\csname psq@4@61\endcsname{0}\expandafter\def\csname psq@4@62\endcsname{0}\expandafter\def\csname psq@4@63\endcsname{0}\expandafter\def\csname psq@4@64\endcsname{0}%
+% Queen PST
+\expandafter\def\csname psq@5@1\endcsname{-20}\expandafter\def\csname psq@5@2\endcsname{-10}\expandafter\def\csname psq@5@3\endcsname{-10}\expandafter\def\csname psq@5@4\endcsname{-5}\expandafter\def\csname psq@5@5\endcsname{-5}\expandafter\def\csname psq@5@6\endcsname{-10}\expandafter\def\csname psq@5@7\endcsname{-10}\expandafter\def\csname psq@5@8\endcsname{-20}%
+\expandafter\def\csname psq@5@9\endcsname{-10}\expandafter\def\csname psq@5@10\endcsname{0}\expandafter\def\csname psq@5@11\endcsname{5}\expandafter\def\csname psq@5@12\endcsname{0}\expandafter\def\csname psq@5@13\endcsname{0}\expandafter\def\csname psq@5@14\endcsname{0}\expandafter\def\csname psq@5@15\endcsname{0}\expandafter\def\csname psq@5@16\endcsname{-10}%
+\expandafter\def\csname psq@5@17\endcsname{-10}\expandafter\def\csname psq@5@18\endcsname{5}\expandafter\def\csname psq@5@19\endcsname{5}\expandafter\def\csname psq@5@20\endcsname{5}\expandafter\def\csname psq@5@21\endcsname{5}\expandafter\def\csname psq@5@22\endcsname{5}\expandafter\def\csname psq@5@23\endcsname{0}\expandafter\def\csname psq@5@24\endcsname{-10}%
+\expandafter\def\csname psq@5@25\endcsname{0}\expandafter\def\csname psq@5@26\endcsname{0}\expandafter\def\csname psq@5@27\endcsname{5}\expandafter\def\csname psq@5@28\endcsname{5}\expandafter\def\csname psq@5@29\endcsname{5}\expandafter\def\csname psq@5@30\endcsname{5}\expandafter\def\csname psq@5@31\endcsname{0}\expandafter\def\csname psq@5@32\endcsname{-5}%
+\expandafter\def\csname psq@5@33\endcsname{-5}\expandafter\def\csname psq@5@34\endcsname{0}\expandafter\def\csname psq@5@35\endcsname{5}\expandafter\def\csname psq@5@36\endcsname{5}\expandafter\def\csname psq@5@37\endcsname{5}\expandafter\def\csname psq@5@38\endcsname{5}\expandafter\def\csname psq@5@39\endcsname{0}\expandafter\def\csname psq@5@40\endcsname{-5}%
+\expandafter\def\csname psq@5@41\endcsname{-10}\expandafter\def\csname psq@5@42\endcsname{0}\expandafter\def\csname psq@5@43\endcsname{5}\expandafter\def\csname psq@5@44\endcsname{5}\expandafter\def\csname psq@5@45\endcsname{5}\expandafter\def\csname psq@5@46\endcsname{5}\expandafter\def\csname psq@5@47\endcsname{0}\expandafter\def\csname psq@5@48\endcsname{-10}%
+\expandafter\def\csname psq@5@49\endcsname{-10}\expandafter\def\csname psq@5@50\endcsname{0}\expandafter\def\csname psq@5@51\endcsname{0}\expandafter\def\csname psq@5@52\endcsname{0}\expandafter\def\csname psq@5@53\endcsname{0}\expandafter\def\csname psq@5@54\endcsname{0}\expandafter\def\csname psq@5@55\endcsname{0}\expandafter\def\csname psq@5@56\endcsname{-10}%
+\expandafter\def\csname psq@5@57\endcsname{-20}\expandafter\def\csname psq@5@58\endcsname{-10}\expandafter\def\csname psq@5@59\endcsname{-10}\expandafter\def\csname psq@5@60\endcsname{-5}\expandafter\def\csname psq@5@61\endcsname{-5}\expandafter\def\csname psq@5@62\endcsname{-10}\expandafter\def\csname psq@5@63\endcsname{-10}\expandafter\def\csname psq@5@64\endcsname{-20}%
+% King PST (middlegame)
+\expandafter\def\csname psq@6@1\endcsname{20}\expandafter\def\csname psq@6@2\endcsname{30}\expandafter\def\csname psq@6@3\endcsname{10}\expandafter\def\csname psq@6@4\endcsname{0}\expandafter\def\csname psq@6@5\endcsname{0}\expandafter\def\csname psq@6@6\endcsname{10}\expandafter\def\csname psq@6@7\endcsname{30}\expandafter\def\csname psq@6@8\endcsname{20}%
+\expandafter\def\csname psq@6@9\endcsname{20}\expandafter\def\csname psq@6@10\endcsname{20}\expandafter\def\csname psq@6@11\endcsname{0}\expandafter\def\csname psq@6@12\endcsname{0}\expandafter\def\csname psq@6@13\endcsname{0}\expandafter\def\csname psq@6@14\endcsname{0}\expandafter\def\csname psq@6@15\endcsname{20}\expandafter\def\csname psq@6@16\endcsname{20}%
+\expandafter\def\csname psq@6@17\endcsname{-10}\expandafter\def\csname psq@6@18\endcsname{-20}\expandafter\def\csname psq@6@19\endcsname{-20}\expandafter\def\csname psq@6@20\endcsname{-20}\expandafter\def\csname psq@6@21\endcsname{-20}\expandafter\def\csname psq@6@22\endcsname{-20}\expandafter\def\csname psq@6@23\endcsname{-20}\expandafter\def\csname psq@6@24\endcsname{-10}%
+\expandafter\def\csname psq@6@25\endcsname{-20}\expandafter\def\csname psq@6@26\endcsname{-30}\expandafter\def\csname psq@6@27\endcsname{-30}\expandafter\def\csname psq@6@28\endcsname{-40}\expandafter\def\csname psq@6@29\endcsname{-40}\expandafter\def\csname psq@6@30\endcsname{-30}\expandafter\def\csname psq@6@31\endcsname{-30}\expandafter\def\csname psq@6@32\endcsname{-20}%
+\expandafter\def\csname psq@6@33\endcsname{-30}\expandafter\def\csname psq@6@34\endcsname{-40}\expandafter\def\csname psq@6@35\endcsname{-40}\expandafter\def\csname psq@6@36\endcsname{-50}\expandafter\def\csname psq@6@37\endcsname{-50}\expandafter\def\csname psq@6@38\endcsname{-40}\expandafter\def\csname psq@6@39\endcsname{-40}\expandafter\def\csname psq@6@40\endcsname{-30}%
+\expandafter\def\csname psq@6@41\endcsname{-30}\expandafter\def\csname psq@6@42\endcsname{-40}\expandafter\def\csname psq@6@43\endcsname{-40}\expandafter\def\csname psq@6@44\endcsname{-50}\expandafter\def\csname psq@6@45\endcsname{-50}\expandafter\def\csname psq@6@46\endcsname{-40}\expandafter\def\csname psq@6@47\endcsname{-40}\expandafter\def\csname psq@6@48\endcsname{-30}%
+\expandafter\def\csname psq@6@49\endcsname{-30}\expandafter\def\csname psq@6@50\endcsname{-40}\expandafter\def\csname psq@6@51\endcsname{-40}\expandafter\def\csname psq@6@52\endcsname{-50}\expandafter\def\csname psq@6@53\endcsname{-50}\expandafter\def\csname psq@6@54\endcsname{-40}\expandafter\def\csname psq@6@55\endcsname{-40}\expandafter\def\csname psq@6@56\endcsname{-30}%
+\expandafter\def\csname psq@6@57\endcsname{-30}\expandafter\def\csname psq@6@58\endcsname{-40}\expandafter\def\csname psq@6@59\endcsname{-40}\expandafter\def\csname psq@6@60\endcsname{-50}\expandafter\def\csname psq@6@61\endcsname{-50}\expandafter\def\csname psq@6@62\endcsname{-40}\expandafter\def\csname psq@6@63\endcsname{-40}\expandafter\def\csname psq@6@64\endcsname{-30}%
+
 % Extract file (1-8) from square index (expandable via csname lookup)
 \def\sqfile#1{\csname sq@file@#1\endcsname}
 
@@ -1202,7 +1270,7 @@
 \def\enginemove{%
   \generatelegal
   \ifnum\legalmovecnt>0
-    \pickrandommove
+    \pickenginemove
     \makemove{\selectedfrom}{\selectedto}{\selectedflags}%
     \updategamestate{\selectedfrom}{\selectedto}{\selectedflags}%
     \edef\tmp@hist{\the\movehistory}%
@@ -1305,7 +1373,7 @@
 \def\enginemoveinteractive{%
   \generatelegal
   \ifnum\legalmovecnt>0
-    \pickrandommove
+    \pickenginemove
     \makemove{\selectedfrom}{\selectedto}{\selectedflags}%
     \updategamestate{\selectedfrom}{\selectedto}{\selectedflags}%
     \edef\tmp@engmv{\fmtmove{\selectedfrom}{\selectedto}}%
@@ -1398,7 +1466,7 @@
     \pdfsetrandomseed\gamehash\relax
     \generatelegal
     \ifnum\legalmovecnt>0
-      \pickrandommove
+      \pickenginemove
       \makemove{\selectedfrom}{\selectedto}{\selectedflags}%
       \updategamestate{\selectedfrom}{\selectedto}{\selectedflags}%
       \edef\tmp@engmv{\fmtmove{\selectedfrom}{\selectedto}}%
@@ -1410,6 +1478,614 @@
       \edef\tmp@engmv{none}%
     \fi
     \writeengineoutput
+  \fi
+}
+
+%% ========================================================
+%% Step 16: Evaluation Function
+%% ========================================================
+
+% Material value lookup (absolute piece type -> centipawns)
+\expandafter\def\csname piecemat@1\endcsname{100}%  pawn
+\expandafter\def\csname piecemat@2\endcsname{320}%  knight
+\expandafter\def\csname piecemat@3\endcsname{330}%  bishop
+\expandafter\def\csname piecemat@4\endcsname{500}%  rook
+\expandafter\def\csname piecemat@5\endcsname{900}%  queen
+\expandafter\def\csname piecemat@6\endcsname{20000}% king
+
+\newcount\evalscore
+\newcount\eval@sq
+\newcount\eval@piece
+\newcount\eval@abs
+\newcount\eval@sum
+\newcount\eval@file
+\newcount\eval@rank
+\newcount\eval@bonus
+
+% \evaluate — sets \evalscore to score relative to side-to-move
+% Positive = good for side to move
+\def\evaluate{%
+  \eval@sum=0\relax
+  \eval@sq=1\relax
+  \eval@boardloop
+  % Make relative to side-to-move
+  \ifnum\sidetomove<0
+    \eval@sum=-\eval@sum
+  \fi
+  \global\evalscore=\eval@sum\relax
+}
+
+\def\eval@boardloop{%
+  \ifnum\eval@sq<65
+    \eval@piece=\count\numexpr199+\eval@sq\relax
+    \ifnum\eval@piece=0 \else
+      \eval@abs=\eval@piece\relax
+      \ifnum\eval@abs<0 \eval@abs=-\eval@abs\relax\fi
+      % Material value + PST bonus
+      \eval@bonus=\csname piecemat@\the\eval@abs\endcsname\relax
+      \ifnum\eval@piece>0
+        \advance\eval@bonus by \csname psq@\the\eval@abs @\the\eval@sq\endcsname\relax
+        \advance\eval@sum by \eval@bonus\relax
+      \else
+        % Black: use mirrored square for PST
+        \advance\eval@bonus by \csname psq@\the\eval@abs @\csname sq@mirror@\the\eval@sq\endcsname\endcsname\relax
+        \advance\eval@sum by -\eval@bonus\relax
+      \fi
+    \fi
+    \advance\eval@sq by 1\relax
+    \expandafter\eval@boardloop
+  \fi
+}
+
+% (eval@positional removed — replaced by PST lookups in eval@boardloop)
+
+%% ========================================================
+%% Step 17: State Stack for Nested Make/Unmake
+%% ========================================================
+
+% State stack using \count10000+. 9 values per depth level.
+% Using high register numbers to avoid conflicts with \newcount allocator.
+% Depth 0: \count10000-\count10008
+% Depth 1: \count10009-\count10017
+
+% \pushstate{depth} — saves save@* registers + sidetomove + fullmovenumber
+% MUST be called AFTER \makemove (which fills save@*) but BEFORE \updategamestate
+\def\pushstate#1{%
+  \count\numexpr10000+9*#1+0\relax=\save@captured\relax
+  \count\numexpr10000+9*#1+1\relax=\save@castleWK\relax
+  \count\numexpr10000+9*#1+2\relax=\save@castleWQ\relax
+  \count\numexpr10000+9*#1+3\relax=\save@castleBK\relax
+  \count\numexpr10000+9*#1+4\relax=\save@castleBQ\relax
+  \count\numexpr10000+9*#1+5\relax=\save@epsquare\relax
+  \count\numexpr10000+9*#1+6\relax=\save@halfmoveclock\relax
+  \count\numexpr10000+9*#1+7\relax=\sidetomove\relax
+  \count\numexpr10000+9*#1+8\relax=\fullmovenumber\relax
+}
+
+% \popstate{depth} — restores save@* registers + sidetomove + fullmovenumber
+% Call BEFORE \unmakemove so that unmakemove finds correct save@* values
+\def\popstate#1{%
+  \global\save@captured=\count\numexpr10000+9*#1+0\relax
+  \global\save@castleWK=\count\numexpr10000+9*#1+1\relax
+  \global\save@castleWQ=\count\numexpr10000+9*#1+2\relax
+  \global\save@castleBK=\count\numexpr10000+9*#1+3\relax
+  \global\save@castleBQ=\count\numexpr10000+9*#1+4\relax
+  \global\save@epsquare=\count\numexpr10000+9*#1+5\relax
+  \global\save@halfmoveclock=\count\numexpr10000+9*#1+6\relax
+  \global\sidetomove=\count\numexpr10000+9*#1+7\relax
+  \global\fullmovenumber=\count\numexpr10000+9*#1+8\relax
+}
+
+%% ========================================================
+%% Step 18: Greedy Search (Depth 1)
+%% ========================================================
+
+\newcount\mm@bestscore
+\newcount\mm@alpha
+\newcount\mm@total
+\newcount\mm@idx
+\newcount\mm@innerbest
+\newcount\mm@curfrom
+\newcount\mm@curto
+\newcount\mm@curflags
+\newcount\mm@score
+\newif\ifmm@cutoff
+
+\def\pickgreedymove{%
+  \ifnum\legalmovecnt>0
+    \mm@bestscore=-99999\relax
+    \def\moveentry##1##2##3{%
+      \makemove{##1}{##2}{##3}%
+      \pushstate{0}%
+      \updategamestate{##1}{##2}{##3}%
+      \evaluate
+      % Score from our perspective: negate opponent's eval
+      \mm@score=-\evalscore\relax
+      \popstate{0}%
+      \unmakemove{##1}{##2}{##3}%
+      \ifnum\mm@score>\mm@bestscore
+        \mm@bestscore=\mm@score\relax
+        \gdef\selectedfrom{##1}%
+        \gdef\selectedto{##2}%
+        \gdef\selectedflags{##3}%
+      \fi
+    }%
+    \the\legalmovelist
+  \fi
+}
+
+%% ========================================================
+%% Step 19: Minimax Depth-2 with Move Ordering
+%% ========================================================
+
+% Copy outer moves to indexed csname storage
+\newcount\mm@copycnt
+
+\def\mm@copymoves{%
+  \mm@copycnt=0\relax
+  \def\moveentry##1##2##3{%
+    \advance\mm@copycnt by 1\relax
+    \expandafter\xdef\csname mm@mf@\the\mm@copycnt\endcsname{##1}%
+    \expandafter\xdef\csname mm@mt@\the\mm@copycnt\endcsname{##2}%
+    \expandafter\xdef\csname mm@mg@\the\mm@copycnt\endcsname{##3}%
+  }%
+  \the\legalmovelist
+  \global\mm@total=\mm@copycnt\relax
+}
+
+% Move ordering: rebuild legalmovelist with captures first
+\newtoks\mm@captures
+\newtoks\mm@quiets
+\newcount\mm@targetpiece
+
+% Move ordering: rebuild legalmovelist with captures first (used by depth-2)
+\def\mm@ordermoves{%
+  \global\mm@captures={}%
+  \global\mm@quiets={}%
+  \def\moveentry##1##2##3{%
+    \mm@targetpiece=\count\numexpr199+##2\relax
+    \ifnum\mm@targetpiece=0
+      \ifnum##3=1
+        \begingroup
+          \edef\tmp@add{\global\noexpand\mm@captures={\the\mm@captures
+            \noexpand\moveentry{##1}{##2}{##3}}}%
+          \tmp@add
+        \endgroup
+      \else
+        \begingroup
+          \edef\tmp@add{\global\noexpand\mm@quiets={\the\mm@quiets
+            \noexpand\moveentry{##1}{##2}{##3}}}%
+          \tmp@add
+        \endgroup
+      \fi
+    \else
+      \begingroup
+        \edef\tmp@add{\global\noexpand\mm@captures={\the\mm@captures
+          \noexpand\moveentry{##1}{##2}{##3}}}%
+        \tmp@add
+      \endgroup
+    \fi
+  }%
+  \the\legalmovelist
+  \global\legalmovelist=\expandafter\expandafter\expandafter
+    {\expandafter\the\mm@captures\the\mm@quiets}%
+}
+
+% Minimax depth-2 search (kept for strength=2)
+\def\pickbestmove{%
+  \ifnum\legalmovecnt>0
+    \mm@copymoves
+    \mm@alpha=-99999\relax
+    \mm@idx=1\relax
+    \mm@outerloop
+  \fi
+}
+
+\def\mm@outerloop{%
+  \ifnum\mm@idx>\mm@total\else
+    \mm@curfrom=\csname mm@mf@\the\mm@idx\endcsname\relax
+    \mm@curto=\csname mm@mt@\the\mm@idx\endcsname\relax
+    \mm@curflags=\csname mm@mg@\the\mm@idx\endcsname\relax
+    \makemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+    \pushstate{0}%
+    \updategamestate{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+    \generatelegal
+    \ifnum\legalmovecnt=0
+      \findkingsquare{\the\sidetomove}%
+      \issquareattacked{\the\kingsquare}{\the\numexpr-\sidetomove\relax}%
+      \ifnum\attackresult=1
+        \mm@score=90000\relax
+      \else
+        \mm@score=0\relax
+      \fi
+    \else
+      \mm@ordermoves
+      \mm@innerbest=-99999\relax
+      \def\moveentry##1##2##3{%
+        \makemove{##1}{##2}{##3}%
+        \pushstate{1}%
+        \updategamestate{##1}{##2}{##3}%
+        \evaluate
+        \mm@score=-\evalscore\relax
+        \popstate{1}%
+        \unmakemove{##1}{##2}{##3}%
+        \ifnum\mm@score>\mm@innerbest
+          \mm@innerbest=\mm@score\relax
+        \fi
+      }%
+      \the\legalmovelist
+      \mm@score=-\mm@innerbest\relax
+    \fi
+    \popstate{0}%
+    \unmakemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+    \ifnum\mm@score>\mm@alpha
+      \mm@alpha=\mm@score\relax
+      \edef\selectedfrom{\the\mm@curfrom}%
+      \edef\selectedto{\the\mm@curto}%
+      \edef\selectedflags{\the\mm@curflags}%
+    \fi
+    \advance\mm@idx by 1\relax
+    \expandafter\mm@outerloop
+  \fi
+}
+
+%% ========================================================
+%% Step 19b: Depth-3 Negamax with Alpha-Beta & Quiescence
+%% ========================================================
+
+% Additional registers for depth-3 search
+\newcount\mm@idxB
+\newcount\mm@idxC
+\newcount\mm@totalB
+\newcount\mm@totalC
+\newcount\mm@alphaB
+\newcount\mm@betaB
+\newcount\mm@alphaC
+\newcount\mm@betaC
+\newcount\mm@bestB
+\newcount\mm@bestC
+\newcount\mm@retval
+\newcount\mm@qidx
+\newcount\mm@qtotal
+\newcount\mm@qalpha
+\newcount\mm@qbeta
+\newcount\mm@standpat
+\newif\ifmm@cutoffB
+\newif\ifmm@cutoffC
+\newif\ifmm@qcutoff
+
+% Copy legalmovelist to indexed storage at depth D, captures first
+% Usage: \mm@copymovesordered{0}, \mm@copymovesordered{1}, etc.
+\def\mm@copymovesordered#1{%
+  \mm@copycnt=0\relax
+  % Helper to store one move
+  \def\mm@addcopy##1##2##3{%
+    \advance\mm@copycnt by 1\relax
+    \expandafter\xdef\csname mm@#1@mf@\the\mm@copycnt\endcsname{##1}%
+    \expandafter\xdef\csname mm@#1@mt@\the\mm@copycnt\endcsname{##2}%
+    \expandafter\xdef\csname mm@#1@mg@\the\mm@copycnt\endcsname{##3}%
+  }%
+  % Pass 1: promotions + captures of Q/R (high value)
+  \def\moveentry##1##2##3{%
+    \ifnum##3=3 \mm@addcopy{##1}{##2}{##3}\else
+      \mm@targetpiece=\count\numexpr199+##2\relax
+      \ifnum\mm@targetpiece<0 \mm@targetpiece=-\mm@targetpiece\fi
+      \ifnum\mm@targetpiece>3
+        \mm@addcopy{##1}{##2}{##3}%
+      \fi
+    \fi
+  }%
+  \the\legalmovelist
+  % Pass 2: captures of B/N (|target| = 2 or 3)
+  \def\moveentry##1##2##3{%
+    \ifnum##3=3 \else
+      \mm@targetpiece=\count\numexpr199+##2\relax
+      \ifnum\mm@targetpiece<0 \mm@targetpiece=-\mm@targetpiece\fi
+      \ifnum\mm@targetpiece>1 \ifnum\mm@targetpiece<4
+        \mm@addcopy{##1}{##2}{##3}%
+      \fi\fi
+    \fi
+  }%
+  \the\legalmovelist
+  % Pass 3: captures of P + EP
+  \def\moveentry##1##2##3{%
+    \ifnum##3=1 \mm@addcopy{##1}{##2}{##3}\else
+    \ifnum##3=3 \else
+      \mm@targetpiece=\count\numexpr199+##2\relax
+      \ifnum\mm@targetpiece<0 \mm@targetpiece=-\mm@targetpiece\fi
+      \ifnum\mm@targetpiece=1
+        \mm@addcopy{##1}{##2}{##3}%
+      \fi
+    \fi\fi
+  }%
+  \the\legalmovelist
+  % Pass 4: quiet moves
+  \def\moveentry##1##2##3{%
+    \ifnum##3=3 \else\ifnum##3=1 \else
+      \mm@targetpiece=\count\numexpr199+##2\relax
+      \ifnum\mm@targetpiece=0
+        \mm@addcopy{##1}{##2}{##3}%
+      \fi
+    \fi\fi
+  }%
+  \the\legalmovelist
+}
+
+% Copy only capture moves from legalmovelist into q0@mf@N storage
+\def\mm@copycapturesonly{%
+  \mm@copycnt=0\relax
+  \def\moveentry##1##2##3{%
+    \ifnum##3=3 % promotion
+      \advance\mm@copycnt by 1\relax
+      \expandafter\xdef\csname mm@q@mf@\the\mm@copycnt\endcsname{##1}%
+      \expandafter\xdef\csname mm@q@mt@\the\mm@copycnt\endcsname{##2}%
+      \expandafter\xdef\csname mm@q@mg@\the\mm@copycnt\endcsname{##3}%
+    \else\ifnum##3=1 % EP
+      \advance\mm@copycnt by 1\relax
+      \expandafter\xdef\csname mm@q@mf@\the\mm@copycnt\endcsname{##1}%
+      \expandafter\xdef\csname mm@q@mt@\the\mm@copycnt\endcsname{##2}%
+      \expandafter\xdef\csname mm@q@mg@\the\mm@copycnt\endcsname{##3}%
+    \else
+      \mm@targetpiece=\count\numexpr199+##2\relax
+      \ifnum\mm@targetpiece=0 \else
+        \advance\mm@copycnt by 1\relax
+        \expandafter\xdef\csname mm@q@mf@\the\mm@copycnt\endcsname{##1}%
+        \expandafter\xdef\csname mm@q@mt@\the\mm@copycnt\endcsname{##2}%
+        \expandafter\xdef\csname mm@q@mg@\the\mm@copycnt\endcsname{##3}%
+      \fi
+    \fi\fi
+  }%
+  \the\legalmovelist
+}
+
+% --- Depth-3 + alpha-beta + quiescence entry point ---
+% Depth C limited to 12 moves (captures first) for speed
+\def\pickbestmovethree{%
+  \ifnum\legalmovecnt>0
+    \mm@copymovesordered{0}%
+    \mm@total=\mm@copycnt\relax
+    \mm@alpha=-99999\relax
+    \mm@idx=1\relax
+    \mm@loopA
+  \fi
+}
+
+% --- Depth 0 loop (our move) ---
+\def\mm@loopA{%
+  \ifnum\mm@idx>\mm@total\else
+    \mm@curfrom=\csname mm@0@mf@\the\mm@idx\endcsname\relax
+    \mm@curto=\csname mm@0@mt@\the\mm@idx\endcsname\relax
+    \mm@curflags=\csname mm@0@mg@\the\mm@idx\endcsname\relax
+    \makemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+    \pushstate{0}%
+    \updategamestate{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+    % Call depth-1 search: score = -searchB(-beta, -alpha)
+    \mm@alphaB=-99999\relax
+    \mm@betaB=\mm@alpha\relax
+    \mm@betaB=-\mm@betaB\relax
+    \mm@searchB
+    \mm@score=-\mm@retval\relax
+    % Re-read move (inner search clobbers curfrom/curto/curflags)
+    \mm@curfrom=\csname mm@0@mf@\the\mm@idx\endcsname\relax
+    \mm@curto=\csname mm@0@mt@\the\mm@idx\endcsname\relax
+    \mm@curflags=\csname mm@0@mg@\the\mm@idx\endcsname\relax
+    \popstate{0}%
+    \unmakemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+    \ifnum\mm@score>\mm@alpha
+      \mm@alpha=\mm@score\relax
+      \edef\selectedfrom{\the\mm@curfrom}%
+      \edef\selectedto{\the\mm@curto}%
+      \edef\selectedflags{\the\mm@curflags}%
+    \fi
+    \advance\mm@idx by 1\relax
+    \expandafter\mm@loopA
+  \fi
+}
+
+% --- Depth 1 search (opponent's reply) ---
+% Sets \mm@retval. Reads \mm@alphaB, \mm@betaB.
+\def\mm@searchB{%
+  \generatelegal
+  \ifnum\legalmovecnt=0
+    \findkingsquare{\the\sidetomove}%
+    \issquareattacked{\the\kingsquare}{\the\numexpr-\sidetomove\relax}%
+    \ifnum\attackresult=1
+      \global\mm@retval=-89000\relax
+    \else
+      \global\mm@retval=0\relax
+    \fi
+  \else
+    \mm@copymovesordered{1}%
+    \mm@totalB=\mm@copycnt\relax
+    \mm@bestB=-99999\relax
+    \mm@cutoffBfalse
+    \mm@idxB=1\relax
+    \mm@loopB
+  \fi
+}
+
+\def\mm@loopB{%
+  \ifnum\mm@idxB>\mm@totalB
+    \global\mm@retval=\mm@bestB\relax
+  \else
+    \ifmm@cutoffB
+      \global\mm@retval=\mm@bestB\relax
+    \else
+      \mm@curfrom=\csname mm@1@mf@\the\mm@idxB\endcsname\relax
+      \mm@curto=\csname mm@1@mt@\the\mm@idxB\endcsname\relax
+      \mm@curflags=\csname mm@1@mg@\the\mm@idxB\endcsname\relax
+      \makemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      \pushstate{1}%
+      \updategamestate{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      % Call depth-2: score = -searchC(-betaB, -alphaB)
+      \mm@alphaC=-\mm@betaB\relax
+      \mm@betaC=-\mm@alphaB\relax
+      \mm@searchC
+      \mm@score=-\mm@retval\relax
+      % Re-read move
+      \mm@curfrom=\csname mm@1@mf@\the\mm@idxB\endcsname\relax
+      \mm@curto=\csname mm@1@mt@\the\mm@idxB\endcsname\relax
+      \mm@curflags=\csname mm@1@mg@\the\mm@idxB\endcsname\relax
+      \popstate{1}%
+      \unmakemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      \ifnum\mm@score>\mm@bestB
+        \mm@bestB=\mm@score\relax
+      \fi
+      \ifnum\mm@bestB>\mm@alphaB
+        \mm@alphaB=\mm@bestB\relax
+      \fi
+      \ifnum\mm@alphaB<\mm@betaB\relax\else
+        \mm@cutoffBtrue
+      \fi
+      \advance\mm@idxB by 1\relax
+      \expandafter\mm@loopB
+    \fi
+  \fi
+}
+
+% --- Depth 2 search (our reply, leaf before quiescence) ---
+% Sets \mm@retval. Reads \mm@alphaC, \mm@betaC.
+\def\mm@searchC{%
+  \generatelegal
+  \ifnum\legalmovecnt=0
+    \findkingsquare{\the\sidetomove}%
+    \issquareattacked{\the\kingsquare}{\the\numexpr-\sidetomove\relax}%
+    \ifnum\attackresult=1
+      \global\mm@retval=-89000\relax
+    \else
+      \global\mm@retval=0\relax
+    \fi
+  \else
+    \mm@copymovesordered{2}%
+    \mm@totalC=\mm@copycnt\relax
+    % Cap moves at depth C to 12 for speed (captures already first)
+    \ifnum\mm@totalC>12 \mm@totalC=12\relax\fi
+    \mm@bestC=-99999\relax
+    \mm@cutoffCfalse
+    \mm@idxC=1\relax
+    \mm@loopC
+  \fi
+}
+
+\def\mm@loopC{%
+  \ifnum\mm@idxC>\mm@totalC
+    \global\mm@retval=\mm@bestC\relax
+  \else
+    \ifmm@cutoffC
+      \global\mm@retval=\mm@bestC\relax
+    \else
+      \mm@curfrom=\csname mm@2@mf@\the\mm@idxC\endcsname\relax
+      \mm@curto=\csname mm@2@mt@\the\mm@idxC\endcsname\relax
+      \mm@curflags=\csname mm@2@mg@\the\mm@idxC\endcsname\relax
+      \makemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      \pushstate{2}%
+      \updategamestate{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      % Call quiescence: score = -quiesce(-betaC, -alphaC)
+      \mm@qalpha=-\mm@betaC\relax
+      \mm@qbeta=-\mm@alphaC\relax
+      \mm@quiesce
+      \mm@score=-\mm@retval\relax
+      % Re-read move
+      \mm@curfrom=\csname mm@2@mf@\the\mm@idxC\endcsname\relax
+      \mm@curto=\csname mm@2@mt@\the\mm@idxC\endcsname\relax
+      \mm@curflags=\csname mm@2@mg@\the\mm@idxC\endcsname\relax
+      \popstate{2}%
+      \unmakemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      \ifnum\mm@score>\mm@bestC
+        \mm@bestC=\mm@score\relax
+      \fi
+      \ifnum\mm@bestC>\mm@alphaC
+        \mm@alphaC=\mm@bestC\relax
+      \fi
+      \ifnum\mm@alphaC<\mm@betaC\relax\else
+        \mm@cutoffCtrue
+      \fi
+      \advance\mm@idxC by 1\relax
+      \expandafter\mm@loopC
+    \fi
+  \fi
+}
+
+% --- Quiescence search (1-ply captures only) ---
+% Sets \mm@retval. Reads \mm@qalpha, \mm@qbeta.
+\def\mm@quiesce{%
+  \evaluate
+  \mm@standpat=\evalscore\relax
+  % Stand-pat cutoff: standpat >= beta
+  \ifnum\mm@standpat<\mm@qbeta\relax
+    % standpat < beta: continue searching captures
+    \ifnum\mm@standpat>\mm@qalpha\relax
+      \mm@qalpha=\mm@standpat\relax
+    \fi
+    \generatelegal
+    \mm@copycapturesonly
+    \mm@qtotal=\mm@copycnt\relax
+    \ifnum\mm@qtotal=0
+      \global\mm@retval=\mm@qalpha\relax
+    \else
+      \mm@qcutofffalse
+      \mm@qidx=1\relax
+      \mm@qloop
+    \fi
+  \else
+    % standpat >= beta: return beta
+    \global\mm@retval=\mm@qbeta\relax
+  \fi
+}
+
+\def\mm@qloop{%
+  \ifnum\mm@qidx>\mm@qtotal
+    \global\mm@retval=\mm@qalpha\relax
+  \else
+    \ifmm@qcutoff
+      \global\mm@retval=\mm@qalpha\relax
+    \else
+      \mm@curfrom=\csname mm@q@mf@\the\mm@qidx\endcsname\relax
+      \mm@curto=\csname mm@q@mt@\the\mm@qidx\endcsname\relax
+      \mm@curflags=\csname mm@q@mg@\the\mm@qidx\endcsname\relax
+      \makemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      \pushstate{3}%
+      \updategamestate{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      \evaluate
+      \mm@score=-\evalscore\relax
+      % Re-read move
+      \mm@curfrom=\csname mm@q@mf@\the\mm@qidx\endcsname\relax
+      \mm@curto=\csname mm@q@mt@\the\mm@qidx\endcsname\relax
+      \mm@curflags=\csname mm@q@mg@\the\mm@qidx\endcsname\relax
+      \popstate{3}%
+      \unmakemove{\the\mm@curfrom}{\the\mm@curto}{\the\mm@curflags}%
+      \ifnum\mm@score>\mm@qalpha\relax
+        \mm@qalpha=\mm@score\relax
+      \fi
+      % alpha >= beta: cutoff
+      \ifnum\mm@qalpha<\mm@qbeta\relax\else
+        \mm@qcutofftrue
+      \fi
+      \advance\mm@qidx by 1\relax
+      \expandafter\mm@qloop
+    \fi
+  \fi
+}
+
+%% ========================================================
+%% Step 20: Engine Strength Configuration & Dispatch
+%% ========================================================
+
+\newcount\enginestrength
+\global\enginestrength=3\relax  % default: depth-3 + alpha-beta + quiescence
+
+% Dispatch to appropriate move picker based on \enginestrength
+\def\pickenginemove{%
+  \ifcase\enginestrength
+    \pickrandommove        % 0 = random
+  \or
+    \pickgreedymove        % 1 = greedy (depth-1)
+  \or
+    \pickbestmove          % 2 = minimax (depth-2)
+  \or
+    \pickbestmovethree     % 3 = depth-3 negamax + quiescence
+  \else
+    \pickbestmovethree     % fallback
   \fi
 }
 
