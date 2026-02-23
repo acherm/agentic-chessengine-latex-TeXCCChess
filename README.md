@@ -4,7 +4,19 @@
 
 All game logic — board representation, move generation, legal move validation, search, and evaluation — runs inside TeX at compile time. No Lua, no external programs for the chess logic itself. Just `\count` registers, `\csname` tables, and a lot of `\expandafter`.
 
+To the best of our knowledge, this is the first chess engine ever written in LaTeX/TeX.
+
 Estimated strength: **~1300 Elo** (measured: 46% score vs Stockfish 1320 over 100 games, time control 40/60+1).
+
+## Demos
+
+[![Local usage demo](https://img.youtube.com/vi/Tg4r_bu0ANY/0.jpg)](https://youtu.be/Tg4r_bu0ANY)
+
+**[Local usage](https://youtu.be/Tg4r_bu0ANY)** — Playing against the engine locally via pdflatex recompilation
+
+[![Overleaf demo](https://img.youtube.com/vi/ngHMozcyfeY/0.jpg)](https://youtu.be/ngHMozcyfeY)
+
+**[Overleaf demo](https://youtu.be/ngHMozcyfeY)** — Running the engine directly in Overleaf (yes, it works!)
 
 ## Features
 
