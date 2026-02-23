@@ -4,7 +4,10 @@
 
 \begin{document}
 
+\makeatletter
 \def\gameseed{42}      % Change this number to get a different game
+\enginestrength=3      % 0=random, 1=greedy, 2=depth-2, 3=depth-3+quiescence (~1300 Elo)
+\makeatother
 \initboard
 \initgamestate
 
@@ -16,7 +19,15 @@
 %%% =============================================
 
 \playmove{e2e4}
-% \playmove{...}     ← add your next move here after compiling
+\playmove{d2d4}
+\playmove{b1c3}
+\playmove{g1f3}
+\playmove{f1d3}
+\playmove{e1g1}
+\playmove{b2c3}
+
+
+
 
 %%% =============================================
 
@@ -42,6 +53,7 @@
 \noindent\textit{Examples: \texttt{e2e4} (pawn), \texttt{g1f3} (knight), \texttt{e1g1} (kingside castle).}
 
 \medskip\noindent\textit{Engine responses are stable across recompiles. Change
-\texttt{\textbackslash gameseed\{...\}} to start a different game.}
+\texttt{\textbackslash gameseed\{...\}} to start a different game.
+Set \texttt{\textbackslash enginestrength} to 0 (random), 1 (greedy), 2 (depth-2), or 3 (depth-3 + quiescence, default).}
 
 \end{document}
