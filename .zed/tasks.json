@@ -1,0 +1,14 @@
+[
+  {
+    "label": "pdflatex_view",
+    "command": "sh",
+    "args": [
+      "-lc",
+      "cd \"$ZED_DIRNAME\" && pdflatex -shell-escape -synctex=1 -interaction=nonstopmode \"$ZED_FILENAME\" && open \"$ZED_STEM.pdf\"",
+    ],
+    "tags": ["latex-build"],
+    "allow_concurrent_runs": false,
+    "reveal": "no_focus",
+    "hide": "on_success",
+  },
+]

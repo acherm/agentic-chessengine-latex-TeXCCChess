@@ -5,7 +5,10 @@ set -euo pipefail
 # Configuration (override via environment variables)
 GAMES=${GAMES:-100}
 STOCKFISH_ELO=${STOCKFISH_ELO:-1320}
-TIME_CONTROL=${TIME_CONTROL:-"40/60+1"}
+# Default: Stockfish UCI_Elo calibration TC (120s + 1s increment).
+# The UCI_Elo scale was tuned at this TC, anchored to CCRL 40/4.
+# For a longer/stabler alternative, use: TIME_CONTROL="40/240+2"
+TIME_CONTROL=${TIME_CONTROL:-"120+1"}
 PGN_FILE="elo-games.pgn"
 TEX_FILE="elo-games.tex"
 PDF_FILE="elo-games.pdf"
@@ -55,7 +58,8 @@ cutechess-cli \
     -engine name="TeX Chess Engine" cmd="$SCRIPT_DIR/chess-uci.py" proto=uci \
     -engine name="Stockfish" cmd=stockfish proto=uci \
         "option.Skill Level=0" option.UCI_LimitStrength=true option.UCI_Elo="$STOCKFISH_ELO" \
-    -each tc="$TIME_CONTROL" \
+        "option.Move Overhead=200" \
+    -each tc="$TIME_CONTROL" timemargin=500 \
     -rounds "$ROUNDS" -games 2 -repeat \
     -pgnout "$SCRIPT_DIR/$PGN_FILE" \
     -recover \
