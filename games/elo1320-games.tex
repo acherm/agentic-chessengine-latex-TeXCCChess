@@ -1,0 +1,292 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{chessboard}
+\usepackage{geometry}
+\usepackage{parskip}
+\geometry{margin=1in}
+\storechessboardstyle{small}{maxfield=h8,fieldmaxwidth=0.6cm,labelleft=false,labelbottom=false}
+
+\begin{document}
+\title{TeX Chess Engine vs Stockfish --- Elo Assessment}
+\date{\today}
+\maketitle
+
+\section*{Summary}
+\begin{tabular}{ll}
+Total games: & 10 \\
+TeX Chess Engine wins: & 3 \\
+Stockfish wins: & 6 \\
+Draws: & 1 \\
+Score for TeX Chess Engine: & 35.0\% \\
+\end{tabular}
+
+\bigskip
+
+\subsection*{Game 1: TeX Chess Engine vs Stockfish (1/2-1/2)}
+\noindent 1.~Nc3 d5 2.~e3 a6 3.~Bd3 e6 4.~Nce2 Nc6 5.~c4 Nb4 6.~Bb1 e5 7.~cxd5 Nxd5 8.~Nf3 Bd6 9.~e4 Nb6 10.~d4 Bb4+ 11.~Bd2 Qe7 12.~O-O Be6 13.~Bxb4 Qxb4 14.~Qc2 Nd7 15.~Nxe5 Nxe5 16.~dxe5 O-O-O 17.~Rd1 Nh6 18.~Nf4 Ng4 19.~Rxd8+ Kxd8 20.~Nxe6+ fxe6 21.~Qd1+ Ke8 22.~a3 Qxb2 23.~Ra2 Nxf2 24.~Rxb2 Nxd1 25.~Rb3 Rf8 26.~Rxb7 Rf2 27.~Rxc7 Re2 28.~Kf1 Rd2 29.~Ke1 Rb2 30.~Kxd1 Rxb1+ 31.~Kc2 Rb5 32.~Rxg7 Ra5 33.~Rxh7 Kd8 34.~Rh8+ Kc7 35.~Rh7+ Kb6 36.~Rh5 Rxa3 37.~Kb1 Re3 38.~Rh6 Rxe4 39.~Rxe6+ Kb5 40.~Re7 Re2 41.~Ka1 Kc5 42.~Kb1 Re1+ 43.~Ka2 Kb4 44.~Kb2 Re2+ 45.~Ka1 Kb3 46.~Rb7+ Kc3 47.~Rc7+ Kd3 48.~Rd7+ Kc2 49.~Rc7+ Kd3 50.~Rd7+ Kc4 51.~Kb1 Rxe5 52.~Rc7+ Kd4 53.~h3 Re3 54.~h4 Re1+ 55.~Rc1 Re4 56.~h5 Ke5 57.~Rc7 Rb4+ 58.~Ka1 Rh4 59.~Rc1 Ra4+ 60.~Kb1 Re4 61.~Rc7 Kf6 62.~Rc6+ Kg5 63.~h6 Rh4 64.~Rxa6 Rxh6 65.~Ra5+ Kg4 66.~Ra7 Re6 67.~Rh7 Kg5 68.~Ka1 Re1+ 69.~Ka2 Kf4 70.~Rf7+ Kg3 71.~Rg7+ Kf4 72.~Rf7+ Ke4 73.~Re7+ Kd3 74.~Rxe1 Kd4 75.~Re7 Kc5 76.~Kb1 Kc4 77.~Ka1 Kb3 78.~Kb1 Kc4 79.~Ka1 Kd3 80.~Rc7 Ke4 81.~Rf7 Ke3 82.~Ka2 Ke2 83.~Ka1 Ke1 84.~Ka2 Kd2 85.~Kb2 Ke2 86.~Ka1 Ke1 87.~Ka2 Ke2 88.~Ka1 1/2-1/2
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=8/5R2/8/8/8/8/4k1P1/K7}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\hrule
+\bigskip
+
+\subsection*{Game 2: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~c3 Nc6 2.~e4 e6 3.~Qc2 Nf6 4.~d4 Ng4 5.~Bb5 a6 6.~Be2 Nxf2 7.~Kxf2 Qh4+ 8.~g3 Qf6+ 9.~Kg2 e5 10.~Be3 Ne7 11.~d5 d6 12.~Nf3 Bg4 13.~h4 Bxf3+ 14.~Bxf3 h6 15.~Qa4+ b5 16.~Qa5 Kd7 17.~Rf1 Qg6 18.~c4 bxc4 19.~Nd2 f5 20.~Qa4+ Kc8 21.~Rac1 f4 22.~Kh1 fxe3 23.~Qxc4 c6 24.~dxc6 exd2 25.~Rc3 d5 26.~exd5 Qf5 27.~Bd1 Qh3+ 28.~Kg1 h5 29.~d6 Nf5 30.~Qe6+ Kb8 31.~Rxf5 Bxd6 32.~Rb3+ Bb4 33.~Rxb4+ Ka7 34.~Qe7\# 1-0
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=r6r/k3Q1p1/p1P5/4pR1p/1R5P/6Pq/PP1p4/3B2K1}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\hrule
+\bigskip
+
+\subsection*{Game 3: TeX Chess Engine vs Stockfish (0-1)}
+\noindent 1.~Nc3 e5 2.~a3 Nc6 3.~Nd5 e4 4.~d3 Nf6 5.~Nxf6+ Qxf6 6.~dxe4 d6 7.~e3 Qg6 8.~Bb5 Bd7 9.~Qf3 O-O-O 10.~h3 Ne5 11.~Qe2 Qxg2 12.~Bxd7+ Rxd7 13.~f4 Qxh1 14.~fxe5 Qxe4 15.~exd6 Rxd6 16.~Qg4+ Re6 17.~Qxe4 Rxe4 18.~Bd2 Rh4 19.~O-O-O Be7 20.~Bc3 f6 21.~Rd4 Rh5 22.~Re4 Bd6 23.~Rg4 Rg5 24.~Rxg5 fxg5 25.~Nf3 Rf8 26.~Nd2 Re8 27.~Bd4 h5 28.~Bxa7 Kd7 29.~Nc4 b6 30.~Nxd6 Kxd6 31.~e4 g6 32.~Kb1 Rxe4 33.~b3 Re8 34.~c4 g4 35.~hxg4 Re1+ 36.~Ka2 Re2+ 37.~Ka1 h4 38.~Kb1 Re8 39.~b4 Kc6 40.~c5 Re1+ 41.~Ka2 b5 42.~Bb8 h3 43.~Bxc7 Kxc7 44.~a4 h2 45.~axb5 Re6 46.~b6+ Kb7 47.~b5 Re7 48.~g5 Re3 49.~Ka1 Re1+ 50.~Ka2 Re2+ 51.~Kb3 h1=Q 52.~Ka3 Qf3+ 53.~Kb4 Qf4+ 54.~Ka3 Qg3+ 55.~Ka4 Ra2+ 56.~Kb4 Qa3+ 57.~Kc4 Rc2+ 58.~Kd4 Qc3+ 59.~Ke4 Qc4+ 60.~Ke3 Qxc5+ 61.~Kd3 Qf5+ 62.~Kd4 Qf4+ 63.~Kd3 Qf5+ 64.~Kd4 Qf2+ 65.~Kd3 Qd2+ 66.~Ke4 Qe2+ 67.~Kd4 Rc4+ 68.~Kd5 Rc1 69.~Kd4 Qc4+ 70.~Ke3 Qe6+ 71.~Kd2 Qd7+ 72.~Kxc1 Kxb6 73.~Kb1 Qd1+ 74.~Kb2 Qd2+ 75.~Ka1 Qd1+ 76.~Kb2 Qd4+ 77.~Ka2 Qa4+ 78.~Kb1 Qxb5+ 79.~Ka1 Qf1+ 80.~Kb2 Qg2+ 81.~Ka1 Qg1+ 82.~Ka2 Qxg5 83.~Ka1 Qc1+ 84.~Ka2 Qg5 85.~Ka1 Qc1+ 86.~Ka2 Kc5 87.~Kb3 Kd5 88.~Ka2 g5 89.~Kb3 Ke4 90.~Ka2 Qd1 91.~Kb2 Qe2+ 92.~Ka1 g4 93.~Kb1 g3 94.~Ka1 g2 95.~Kb1 g1=Q\# 0-1
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=8/8/8/8/4k3/8/4q3/1K4q1}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\hrule
+\bigskip
+
+\subsection*{Game 4: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~d4 Nc6 2.~d5 Ne5 3.~e4 d6 4.~Nc3 e6 5.~dxe6 Bxe6 6.~Be2 Bc4 7.~f4 Bxe2 8.~Kxe2 Nc4 9.~Qd4 Nb6 10.~Nf3 Ne7 11.~a4 Nc6 12.~Qe3 Be7 13.~Rd1 O-O 14.~Kf1 Re8 15.~b3 a6 16.~Qf2 h6 17.~Rd2 Rb8 18.~Qg3 Ra8 19.~a5 Bf6 20.~e5 Nd7 21.~Bb2 Be7 22.~Nd5 Ndb8 23.~e6 g5 24.~Re1 f5 25.~fxg5 hxg5 26.~Rf2 f4 27.~Qh3 Ne5 28.~Qh5 Rf8 29.~Rxe5 dxe5 30.~Qg6+ Kh8 31.~Nxe7 Qd1+ 32.~Ne1 Qxe1+ 33.~Kxe1 f3 34.~Bxe5+ Rf6 35.~Bxf6\# 1-0
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=rn5k/1pp1N3/p3PBQ1/P5p1/8/1P3p2/2P2RPP/4K3}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\hrule
+\bigskip
+
+\subsection*{Game 5: TeX Chess Engine vs Stockfish (0-1)}
+\noindent 1.~Nc3 Nf6 2.~e3 e6 3.~Nce2 c5 4.~Nf3 d5 5.~Nf4 Nc6 6.~Bb5 Bd6 7.~O-O c4 8.~Nd4 Qc7 9.~Qf3 e5 10.~Nxc6 exf4 11.~Nxa7+ Bd7 12.~exf4 O-O 13.~Bxd7 Qxd7 14.~d3 Bb8 15.~dxc4 Bxa7 16.~Rd1 Qf5 17.~Qb3 Ng4 18.~cxd5 Bxf2+ 19.~Kh1 Bc5 20.~Re1 Rfe8 21.~Rxe8+ Rxe8 22.~Bd2 Nf2+ 23.~Kg1 Qh5 24.~Ba5 Ng4+ 25.~Qe3 Qxh2+ 26.~Kf1 Nxe3+ 27.~Ke1 Nc4+ 28.~Kd1 Qg1+ 29.~Be1 Qxe1\# 0-1
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=4r1k1/1p3ppp/8/2bP4/2n2P2/8/PPP3P1/R2Kq3}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\medskip
+\noindent Key positions:\\
+\noindent After 5.~Nf4\\
+\setchessboard{setfen=rnbqkb1r/pp3ppp/4pn2/2pp4/5N2/4PN2/PPPP1PPP/R1BQKB1R}
+\chessboard[style=small]
+\medskip
+
+\noindent After 9\ldots e5\\
+\setchessboard{setfen=r1b1k2r/ppq2ppp/2nb1n2/1B1pp3/2pN1N2/4PQ2/PPPP1PPP/R1B2RK1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 14.~d3\\
+\setchessboard{setfen=r4rk1/Np1q1ppp/3b1n2/3p4/2p2P2/3P1Q2/PPP2PPP/R1B2RK1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 18\ldots Bxf2+\\
+\setchessboard{setfen=r4rk1/1p3ppp/8/3P1q2/5Pn1/1Q6/PPP2bPP/R1BR2K1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 23.~Kg1\\
+\setchessboard{setfen=4r1k1/1p3ppp/8/2bP1q2/5P2/1Q6/PPPB1nPP/R5K1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 27\ldots Nc4+\\
+\setchessboard{setfen=4r1k1/1p3ppp/8/B1bP4/2n2P2/8/PPP3Pq/R3K3}
+\chessboard[style=small]
+\medskip
+
+\hrule
+\bigskip
+
+\subsection*{Game 6: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~e4 Nc6 2.~Nf3 Nf6 3.~d3 d6 4.~Nc3 Bg4 5.~Bg5 e6 6.~d4 h6 7.~Bc1 Be7 8.~Be3 O-O 9.~h3 Bh5 10.~g4 Bg6 11.~Bd3 Nb4 12.~a3 Nxd3+ 13.~cxd3 e5 14.~d5 c6 15.~Nh4 cxd5 16.~Nxg6 fxg6 17.~Qb3 Qc7 18.~O-O Rad8 19.~g5 hxg5 20.~Nxd5 Nxd5 21.~Rac1 Qa5 22.~f3 Rc8 23.~Qxd5+ Qxd5 24.~exd5 Rxc1 25.~Bxc1 g4 26.~hxg4 a6 27.~Bd2 Bd8 28.~Kh2 g5 29.~Kg2 Bf6 30.~Kg3 Re8 31.~Bb4 e4 32.~Rd1 exd3 33.~Bxd6 Rd8 34.~Bc7 Rxd5 35.~Kf2 Bxb2 36.~a4 Rc5 37.~Bb6 Rc4 38.~a5 Bd4+ 39.~Kf1 d2 40.~Bd8 Rc1 41.~Ke2 Rxd1 42.~Kxd1 Be3 43.~Ke2 Bf4 44.~Kd1 Be3 45.~Bb6 Bf4 46.~Bd4 b6 47.~axb6 Bg3 48.~Bc3 Bf4 49.~b7 Bd6 50.~Kxd2 g6 51.~Bf6 Bf4+ 52.~Kc2 Bd6 53.~Kc3 Bf4 54.~Bd4 Bg3 55.~Ba7 Bf4 56.~Kc4 Be5 57.~b8=Q+ Bxb8 58.~Bxb8 Kg7 59.~Kd5 Kg8 60.~Ba7 a5 61.~Bb8 a4 62.~Bd6 Kf7 63.~Ba3 Kg8 64.~Bc5 a3 65.~Bxa3 Kf7 66.~Kd6 Kf8 67.~Kd5+ Kf7 68.~Bc1 Kf8 69.~Kd6 Kf7 70.~Ba3 Kf8 71.~Ke6+ Kg7 72.~Bc1 Kf8 73.~Kf6 Kg8 74.~Ke5 Kf7 75.~Ke4 Kf8 76.~Bd2 Kf7 77.~Ke5 Kf8 78.~Kf6 Kg8 79.~Ke5 Kf7 80.~Bxg5 Kg7 81.~Ke6 Kg8 82.~Be3 Kg7 83.~Ke5 Kf7 84.~Bc5 Kg7 85.~Bd6 Kf7 86.~Bc5 Kg7 87.~f4 Kg8 88.~Kf6 Kh8 89.~Kxg6 Kg8 90.~g5 Kh8 91.~f5 Kg8 92.~f6 Kh8 93.~Kf5 Kg8 94.~g6 Kh8 95.~f7 Kg7 96.~f8=Q\# 1-0
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=5Q2/6k1/6P1/2B2K2/8/8/8/8}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\medskip
+\noindent Key positions:\\
+\noindent After 16.~Nxg6\\
+\setchessboard{setfen=r2q1rk1/pp2bpp1/3p1nNp/3pp3/4P1P1/P1NPB2P/1P3P2/R2QK2R}
+\chessboard[style=small]
+\medskip
+
+\noindent After 31\ldots e4\\
+\setchessboard{setfen=4r1k1/1p4p1/p2p1b2/3P2p1/1B2p1P1/P2P1PK1/1P6/5R2}
+\chessboard[style=small]
+\medskip
+
+\noindent After 47.~axb6\\
+\setchessboard{setfen=6k1/6p1/pP6/6p1/3B1bP1/5P2/3p4/3K4}
+\chessboard[style=small]
+\medskip
+
+\noindent After 62\ldots Kf7\\
+\setchessboard{setfen=8/5k2/3B2p1/3K2p1/p5P1/5P2/8/8}
+\chessboard[style=small]
+\medskip
+
+\noindent After 78.~Kf6\\
+\setchessboard{setfen=5k2/8/5Kp1/6p1/6P1/5P2/3B4/8}
+\chessboard[style=small]
+\medskip
+
+\noindent After 93\ldots Kg8\\
+\setchessboard{setfen=6k1/8/5P2/2B2KP1/8/8/8/8}
+\chessboard[style=small]
+\medskip
+
+\hrule
+\bigskip
+
+\subsection*{Game 7: TeX Chess Engine vs Stockfish (1-0)}
+\noindent 1.~Nc3 e6 2.~a3 Nc6 3.~d4 f5 4.~e4 fxe4 5.~Bb5 Qh4 6.~g3 Qf6 7.~Nxe4 Qf7 8.~Ng5 Qf5 9.~Bxc6 bxc6 10.~Bd2 Nf6 11.~N1f3 Bb7 12.~Bc3 Bd6 13.~Qd3 Qd5 14.~O-O O-O 15.~Rad1 h6 16.~Bb4 Rab8 17.~c4 Qf5 18.~Qxf5 c5 19.~Nxe6 dxe6 20.~Qxe6+ Kh8 21.~Bxc5 Rfe8 22.~Qxe8+ Kh7 23.~Qxb8 Be4 24.~Ne5 Bxe5 25.~dxe5 Bf3 26.~exf6 h5 27.~f7 g6 28.~Qg8+ Kh6 29.~f8=Q+ Kg5 30.~Qf4\# 1-0
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=6Q1/p1p5/6p1/2B3kp/2P2Q2/P4bP1/1P3P1P/3R1RK1}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\medskip
+\noindent Key positions:\\
+\noindent After 5.~Bb5\\
+\setchessboard{setfen=r1bqkbnr/pppp2pp/2n1p3/1B6/3Pp3/P1N5/1PP2PPP/R1BQK1NR}
+\chessboard[style=small]
+\medskip
+
+\noindent After 9\ldots bxc6\\
+\setchessboard{setfen=r1b1kbnr/p1pp2pp/2p1p3/5qN1/3P4/P5P1/1PP2P1P/R1BQK1NR}
+\chessboard[style=small]
+\medskip
+
+\noindent After 14.~O-O\\
+\setchessboard{setfen=r3k2r/pbpp2pp/2pbpn2/3q2N1/3P4/P1BQ1NP1/1PP2P1P/R4RK1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 18\ldots c5\\
+\setchessboard{setfen=1r3rk1/pbpp2p1/3bpn1p/2p2QN1/1BPP4/P4NP1/1P3P1P/3R1RK1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 23.~Qxb8\\
+\setchessboard{setfen=1Q6/pbp3pk/3b1n1p/2B5/2PP4/P4NP1/1P3P1P/3R1RK1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 27\ldots g6\\
+\setchessboard{setfen=1Q6/p1p2P1k/6p1/2B4p/2P5/P4bP1/1P3P1P/3R1RK1}
+\chessboard[style=small]
+\medskip
+
+\hrule
+\bigskip
+
+\subsection*{Game 8: Stockfish vs TeX Chess Engine (0-1)}
+\noindent 1.~e4 Nc6 2.~Be2 Nf6 3.~d3 Nd4 4.~c4 Nxe2 5.~Kxe2 a6 6.~Ke1 d6 7.~Nf3 Bd7 8.~Nc3 Rb8 9.~e5 Ng8 10.~Be3 Rc8 11.~Qe2 Bg4 12.~Bd2 dxe5 13.~Rc1 f6 14.~Qe4 Bxf3 15.~gxf3 Rb8 16.~Ke2 e6 17.~f4 Ne7 18.~h3 Qd6 19.~Rhd1 Rd8 20.~c5 Qd7 21.~b4 f5 22.~Qxe5 Qxd3+ 23.~Ke1 Qf3 24.~b5 Qh1+ 25.~Ke2 Qxh3 26.~Be3 Rxd1 27.~Nxd1 axb5 28.~Qxe6 Qh6 29.~Qb3 Qa6 30.~Nb2 b6 31.~Kf1 bxc5 32.~Rxc5 Qb7 33.~a4 Qh1+ 34.~Ke2 Qh5+ 35.~Kd2 bxa4 36.~Qb8+ Kf7 37.~Nd3 c6 38.~Ra5 Nd5 39.~Ra8 Bb4+ 40.~Kc1 Rxb8 41.~Rxb8 Ba3+ 42.~Kd2 Nxe3 43.~Nc5 Nc4+ 44.~Kc3 Bxc5 45.~f3 Nd6 46.~Kd2 Qxf3 47.~Ke1 Qxf4 48.~Rb1 Qe4+ 49.~Kd1 Qxb1+ 50.~Kd2 Kg8 51.~Kc3 Bb4+ 52.~Kd4 Qe4\# 0-1
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=6k1/6pp/2pn4/5p2/pb1Kq3/8/8/8}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\medskip
+\noindent Key positions:\\
+\noindent After 9.~e5\\
+\setchessboard{setfen=1r1qkb1r/1ppbpppp/p2p1n2/4P3/2P5/2NP1N2/PP3PPP/R1BQK2R}
+\chessboard[style=small]
+\medskip
+
+\noindent After 17\ldots Ne7\\
+\setchessboard{setfen=1r1qkb1r/1pp1n1pp/p3pp2/4p3/2P1QP2/2NP4/PP1BKP1P/2R4R}
+\chessboard[style=small]
+\medskip
+
+\noindent After 26.~Be3\\
+\setchessboard{setfen=3rkb1r/1pp1n1pp/p3p3/1PP1Qp2/5P2/2N1B2q/P3KP2/2RR4}
+\chessboard[style=small]
+\medskip
+
+\noindent After 34\ldots Qh5+\\
+\setchessboard{setfen=4kb1r/2p1n1pp/8/1pR2p1q/P4P2/1Q2B3/1N2KP2/8}
+\chessboard[style=small]
+\medskip
+
+\noindent After 43.~Nc5\\
+\setchessboard{setfen=1R6/5kpp/2p5/2N2p1q/p4P2/b3n3/3K1P2/8}
+\chessboard[style=small]
+\medskip
+
+\noindent After 51\ldots Bb4+\\
+\setchessboard{setfen=6k1/6pp/2pn4/5p2/pb6/2K5/8/1q6}
+\chessboard[style=small]
+\medskip
+
+\hrule
+\bigskip
+
+\subsection*{Game 9: TeX Chess Engine vs Stockfish (1-0)}
+\noindent 1.~Nc3 e6 2.~a3 Nc6 3.~d4 Nce7 4.~Nf3 d5 5.~e4 Bd7 6.~exd5 Nxd5 7.~Nxd5 Bd6 8.~Bg5 Qc8 9.~Nf4 h6 10.~Nh5 e5 11.~dxe5 hxg5 12.~Nxg7+ Ke7 13.~exd6+ cxd6 14.~Nxg5 Nf6 15.~Bd3 Kf8 16.~Nh7+ Rxh7 17.~Bxh7 Nxh7 18.~Qd4 Qd8 19.~Qxd6+ Kxg7 20.~Qd4+ Kg8 21.~O-O a6 22.~Rad1 Nf8 23.~Qe4 Qe8 24.~Qxe8 Rxe8 25.~Rde1 Ne6 26.~Rd1 Re7 27.~h3 Ba4 28.~Rc1 Bc6 29.~g3 Ng5 30.~h4 Nh3+ 31.~Kh2 Re4 32.~Kxh3 Rc4 33.~Kh2 b5 34.~Kg1 Ba8 35.~Rfd1 Be4 36.~Rd8+ Kh7 37.~h5 Kg7 38.~Rd6 Kg8 39.~Rb6 Bf3 40.~b3 Rc3 41.~h6 b4 42.~Rb8+ Kh7 43.~Rf8 f5 44.~axb4 a5 45.~bxa5 Rd3 46.~cxd3 Kxh6 47.~Rxf5 Bd1 48.~b4 Ba4 49.~Rc7 Bd1 50.~Rf4 Bc2 51.~Rh4+ Kg5 52.~Rxc2 Kf5 53.~Rc6 Kg5 54.~Rh7 Kf5 55.~a6 Ke5 56.~a7 Kd5 57.~a8=Q Kd4 58.~Qd8+ Ke5 59.~Rh5\# 1-0
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=3Q4/8/2R5/4k2R/1P6/3P2P1/5P2/6K1}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\medskip
+\noindent Key positions:\\
+\noindent After 10.~Nh5\\
+\setchessboard{setfen=r1q1k1nr/pppb1pp1/3bp2p/6BN/3P4/P4N2/1PP2PPP/R2QKB1R}
+\chessboard[style=small]
+\medskip
+
+\noindent After 19\ldots Kxg7\\
+\setchessboard{setfen=r2q4/pp1b1pkn/3Q4/8/8/P7/1PP2PPP/R3K2R}
+\chessboard[style=small]
+\medskip
+
+\noindent After 29.~g3\\
+\setchessboard{setfen=6k1/1p2rp2/p1b1n3/8/8/P5PP/1PP2P2/2R2RK1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 38\ldots Kg8\\
+\setchessboard{setfen=6k1/5p2/p2R4/1p5P/2r1b3/P5P1/1PP2P2/2R3K1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 48.~b4\\
+\setchessboard{setfen=8/8/7k/P4R2/1P6/3P2P1/5P2/2Rb2K1}
+\chessboard[style=small]
+\medskip
+
+\noindent After 57\ldots Kd4\\
+\setchessboard{setfen=Q7/7R/2R5/8/1P1k4/3P2P1/5P2/6K1}
+\chessboard[style=small]
+\medskip
+
+\hrule
+\bigskip
+
+\subsection*{Game 10: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~c3 Nc6 2.~e4 e6 3.~h3 Nge7 4.~d4 Ng6 5.~Be2 Nh4 6.~Nf3 Nxf3+ 7.~Bxf3 d6 8.~O-O Bd7 9.~a4 e5 10.~Re1 exd4 11.~b4 dxc3 12.~Nxc3 Nxb4 13.~Rb1 a5 14.~e5 d5 15.~Bxd5 Qc8 16.~e6 Nxd5 17.~exd7+ Kxd7 18.~Nxd5 Kc6 19.~Qf3 Kc5 20.~Be3+ Kd6 21.~Red1 Ke6 22.~Nf4+ Kf6 23.~Nd5+ Kg6 24.~Nf4+ Kf6 25.~Nh5+ Kg6 26.~Rxb7 h6 27.~g4 Kh7 28.~Qe4+ Kg8 29.~Rdb1 Qe6 30.~Qd3 Qc6 31.~Qb5 Qxb5 32.~axb5 Bd6 33.~Bf4 a4 34.~Ra1 a3 35.~Bxd6 cxd6 36.~Kg2 a2 37.~Rc7 Rb8 38.~Nf4 g5 39.~Nh5 Kf8 40.~b6 d5 41.~Kf3 f5 42.~b7 fxg4+ 43.~hxg4 Rxb7 44.~Rxb7 Kg8 45.~Rxa2 d4 46.~Ra8\# 1-0
+
+\medskip
+\noindent Final position:\\
+\setchessboard{setfen=R5kr/1R6/7p/6pN/3p2P1/5K2/5P2/8}
+\chessboard[maxfield=h8,fieldmaxwidth=0.8cm]
+
+\end{document}

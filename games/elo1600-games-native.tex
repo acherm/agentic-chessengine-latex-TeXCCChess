@@ -1,0 +1,735 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{chessboard}
+\usepackage{geometry}
+\usepackage{parskip}
+\geometry{margin=1in}
+\input{chess-engine}
+
+\begin{document}
+\makeatletter
+
+\title{TeX Chess Engine vs Stockfish --- Elo Assessment (Native \TeX\ Boards)}
+\date{\today}
+\maketitle
+
+\section*{Summary}
+\begin{tabular}{ll}
+Total games: & 10 \\
+TeX Chess Engine wins: & 1 \\
+Stockfish wins: & 9 \\
+Draws: & 0 \\
+Score for TeX Chess Engine: & 10.0\% \\
+\end{tabular}
+
+\bigskip
+
+\subsection*{Game 1: TeX Chess Engine vs Stockfish (0-1)}
+\noindent 1.~Nc3 e5 2.~a3 Ne7 3.~a4 Na6 4.~Nf3 Nb4 5.~Na2 Ng6 6.~e4 Nxa2 7.~Rxa2 d5 8.~Ra1 dxe4 9.~Ng1 Be7 10.~Rb1 O-O 11.~a5 Be6 12.~a6 b6 13.~Qh5 Qe8 14.~Ne2 f5 0-1
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{b1c3}% 1. Nc3
+\replaymove{e7e5}% 1... e5
+\replaymove{a2a3}% 2. a3
+\replaymove{g8e7}% 2... Ne7
+\replaymove{a3a4}% 3. a4
+\replaymove{b8a6}% 3... Na6
+\replaymove{g1f3}% 4. Nf3
+\replaymove{a6b4}% 4... Nb4
+\replaymove{c3a2}% 5. Na2
+\replaymove{e7g6}% 5... Ng6
+\replaymove{e2e4}% 6. e4
+\replaymove{b4a2}% 6... Nxa2
+\replaymove{a1a2}% 7. Rxa2
+\replaymove{d7d5}% 7... d5
+\replaymove{a2a1}% 8. Ra1
+\replaymove{d5e4}% 8... dxe4
+\replaymove{f3g1}% 9. Ng1
+\replaymove{f8e7}% 9... Be7
+\replaymove{a1b1}% 10. Rb1
+\replaymove{e8g8}% 10... O-O
+\replaymove{a4a5}% 11. a5
+\replaymove{c8e6}% 11... Be6
+\replaymove{a5a6}% 12. a6
+\replaymove{b7b6}% 12... b6
+\replaymove{d1h5}% 13. Qh5
+\replaymove{d8e8}% 13... Qe8
+\replaymove{g1e2}% 14. Ne2
+\replaymove{f7f5}% 14... f5
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 2: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~d4 Nc6 2.~Nf3 Nf6 3.~a3 d6 4.~Bf4 Bg4 5.~Nc3 Nh5 6.~Bg5 f6 7.~h3 Bxf3 8.~Be3 Ng3 9.~fxg3 Bh5 10.~Bg1 e6 11.~g4 Bg6 12.~e4 1-0
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{d2d4}% 1. d4
+\replaymove{b8c6}% 1... Nc6
+\replaymove{g1f3}% 2. Nf3
+\replaymove{g8f6}% 2... Nf6
+\replaymove{a2a3}% 3. a3
+\replaymove{d7d6}% 3... d6
+\replaymove{c1f4}% 4. Bf4
+\replaymove{c8g4}% 4... Bg4
+\replaymove{b1c3}% 5. Nc3
+\replaymove{f6h5}% 5... Nh5
+\replaymove{f4g5}% 6. Bg5
+\replaymove{f7f6}% 6... f6
+\replaymove{h2h3}% 7. h3
+\replaymove{g4f3}% 7... Bxf3
+\replaymove{g5e3}% 8. Be3
+\replaymove{h5g3}% 8... Ng3
+\replaymove{f2g3}% 9. fxg3
+\replaymove{f3h5}% 9... Bh5
+\replaymove{e3g1}% 10. Bg1
+\replaymove{e7e6}% 10... e6
+\replaymove{g3g4}% 11. g4
+\replaymove{h5g6}% 11... Bg6
+\replaymove{e2e4}% 12. e4
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 3: TeX Chess Engine vs Stockfish (0-1)}
+\noindent 1.~Nc3 c5 2.~Ne4 e6 3.~Nc3 Nc6 0-1
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{b1c3}% 1. Nc3
+\replaymove{c7c5}% 1... c5
+\par\noindent After 1\ldots c5\\
+\showboard
+\medskip
+
+\replaymove{c3e4}% 2. Ne4
+\replaymove{e7e6}% 2... e6
+\par\noindent After 2\ldots e6\\
+\showboard
+\medskip
+
+\replaymove{e4c3}% 3. Nc3
+\replaymove{b8c6}% 3... Nc6
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 4: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~c3 Nc6 2.~d4 d5 3.~Bf4 Nf6 4.~h3 Nh5 5.~Bg5 h6 6.~Bc1 e5 7.~e3 Nf6 8.~Nf3 exd4 9.~Nxd4 Bd7 10.~Nxc6 Bxc6 11.~Nd2 Be7 12.~b3 O-O 13.~Bd3 d4 14.~cxd4 Bxg2 15.~Rg1 Bc6 16.~Bb2 1-0
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{c2c3}% 1. c3
+\replaymove{b8c6}% 1... Nc6
+\replaymove{d2d4}% 2. d4
+\replaymove{d7d5}% 2... d5
+\replaymove{c1f4}% 3. Bf4
+\replaymove{g8f6}% 3... Nf6
+\replaymove{h2h3}% 4. h3
+\replaymove{f6h5}% 4... Nh5
+\replaymove{f4g5}% 5. Bg5
+\replaymove{h7h6}% 5... h6
+\replaymove{g5c1}% 6. Bc1
+\replaymove{e7e5}% 6... e5
+\replaymove{e2e3}% 7. e3
+\replaymove{h5f6}% 7... Nf6
+\replaymove{g1f3}% 8. Nf3
+\replaymove{e5d4}% 8... exd4
+\replaymove{f3d4}% 9. Nxd4
+\replaymove{c8d7}% 9... Bd7
+\replaymove{d4c6}% 10. Nxc6
+\replaymove{d7c6}% 10... Bxc6
+\replaymove{b1d2}% 11. Nd2
+\replaymove{f8e7}% 11... Be7
+\replaymove{b2b3}% 12. b3
+\replaymove{e8g8}% 12... O-O
+\replaymove{f1d3}% 13. Bd3
+\replaymove{d5d4}% 13... d4
+\replaymove{c3d4}% 14. cxd4
+\replaymove{c6g2}% 14... Bxg2
+\replaymove{h1g1}% 15. Rg1
+\replaymove{g2c6}% 15... Bc6
+\replaymove{c1b2}% 16. Bb2
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 5: TeX Chess Engine vs Stockfish (0-1)}
+\noindent 1.~Nc3 e5 2.~a3 d5 3.~d4 Bd6 4.~e3 Nf6 5.~Qd2 O-O 6.~Rb1 Re8 7.~Be2 Nbd7 8.~Kf1 e4 9.~f3 h6 10.~Ra1 Nf8 11.~Rb1 exf3 12.~Bxf3 Ng4 13.~Bxg4 Bxg4 14.~Qf2 Rc8 15.~h3 Be6 16.~Nb5 Qd7 17.~Nxd6 cxd6 18.~Nf3 Nh7 19.~Kg1 Bf5 20.~Ne1 Ng5 21.~Qe2 a6 22.~Ra1 Re6 23.~h4 Nh7 24.~Qf2 Bg4 25.~Qg3 Bf5 26.~Qf2 Rf6 27.~Qd2 Be4 28.~Qe2 b5 29.~Bd2 Qf5 30.~Rb1 Re6 31.~Qf1 Qg4 32.~Qf4 Qh5 0-1
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{b1c3}% 1. Nc3
+\replaymove{e7e5}% 1... e5
+\replaymove{a2a3}% 2. a3
+\replaymove{d7d5}% 2... d5
+\replaymove{d2d4}% 3. d4
+\replaymove{f8d6}% 3... Bd6
+\replaymove{e2e3}% 4. e3
+\replaymove{g8f6}% 4... Nf6
+\replaymove{d1d2}% 5. Qd2
+\replaymove{e8g8}% 5... O-O
+\replaymove{a1b1}% 6. Rb1
+\replaymove{f8e8}% 6... Re8
+\replaymove{f1e2}% 7. Be2
+\replaymove{b8d7}% 7... Nbd7
+\replaymove{e1f1}% 8. Kf1
+\replaymove{e5e4}% 8... e4
+\replaymove{f2f3}% 9. f3
+\replaymove{h7h6}% 9... h6
+\replaymove{b1a1}% 10. Ra1
+\replaymove{d7f8}% 10... Nf8
+\replaymove{a1b1}% 11. Rb1
+\replaymove{e4f3}% 11... exf3
+\replaymove{e2f3}% 12. Bxf3
+\replaymove{f6g4}% 12... Ng4
+\replaymove{f3g4}% 13. Bxg4
+\replaymove{c8g4}% 13... Bxg4
+\replaymove{d2f2}% 14. Qf2
+\replaymove{a8c8}% 14... Rc8
+\replaymove{h2h3}% 15. h3
+\replaymove{g4e6}% 15... Be6
+\replaymove{c3b5}% 16. Nb5
+\replaymove{d8d7}% 16... Qd7
+\replaymove{b5d6}% 17. Nxd6
+\replaymove{c7d6}% 17... cxd6
+\replaymove{g1f3}% 18. Nf3
+\replaymove{f8h7}% 18... Nh7
+\replaymove{f1g1}% 19. Kg1
+\replaymove{e6f5}% 19... Bf5
+\replaymove{f3e1}% 20. Ne1
+\replaymove{h7g5}% 20... Ng5
+\replaymove{f2e2}% 21. Qe2
+\replaymove{a7a6}% 21... a6
+\replaymove{b1a1}% 22. Ra1
+\replaymove{e8e6}% 22... Re6
+\replaymove{h3h4}% 23. h4
+\replaymove{g5h7}% 23... Nh7
+\replaymove{e2f2}% 24. Qf2
+\replaymove{f5g4}% 24... Bg4
+\replaymove{f2g3}% 25. Qg3
+\replaymove{g4f5}% 25... Bf5
+\replaymove{g3f2}% 26. Qf2
+\replaymove{e6f6}% 26... Rf6
+\replaymove{f2d2}% 27. Qd2
+\replaymove{f5e4}% 27... Be4
+\replaymove{d2e2}% 28. Qe2
+\replaymove{b7b5}% 28... b5
+\replaymove{c1d2}% 29. Bd2
+\replaymove{d7f5}% 29... Qf5
+\replaymove{a1b1}% 30. Rb1
+\replaymove{f6e6}% 30... Re6
+\replaymove{e2f1}% 31. Qf1
+\replaymove{f5g4}% 31... Qg4
+\replaymove{f1f4}% 32. Qf4
+\replaymove{g4h5}% 32... Qh5
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 6: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~c3 Nc6 2.~d4 d5 3.~Nd2 Nf6 4.~Ngf3 Ne4 5.~Qb3 e6 6.~g3 Bd6 7.~Qc2 Ng5 8.~a4 h6 9.~Nxg5 hxg5 10.~e4 O-O 11.~h4 gxh4 12.~e5 Be7 13.~Bb5 a6 14.~Bd3 hxg3 15.~Bh7+ Kh8 16.~fxg3 Bg5 17.~Nf3 Bxc1 18.~Bg8+ Qh4 19.~Rxh4+ Kxg8 20.~Qh7\# 1-0
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{c2c3}% 1. c3
+\replaymove{b8c6}% 1... Nc6
+\replaymove{d2d4}% 2. d4
+\replaymove{d7d5}% 2... d5
+\replaymove{b1d2}% 3. Nd2
+\replaymove{g8f6}% 3... Nf6
+\replaymove{g1f3}% 4. Ngf3
+\replaymove{f6e4}% 4... Ne4
+\replaymove{d1b3}% 5. Qb3
+\replaymove{e7e6}% 5... e6
+\replaymove{g2g3}% 6. g3
+\replaymove{f8d6}% 6... Bd6
+\replaymove{b3c2}% 7. Qc2
+\replaymove{e4g5}% 7... Ng5
+\replaymove{a2a4}% 8. a4
+\replaymove{h7h6}% 8... h6
+\replaymove{f3g5}% 9. Nxg5
+\replaymove{h6g5}% 9... hxg5
+\replaymove{e2e4}% 10. e4
+\replaymove{e8g8}% 10... O-O
+\replaymove{h2h4}% 11. h4
+\replaymove{g5h4}% 11... gxh4
+\replaymove{e4e5}% 12. e5
+\replaymove{d6e7}% 12... Be7
+\replaymove{f1b5}% 13. Bb5
+\replaymove{a7a6}% 13... a6
+\replaymove{b5d3}% 14. Bd3
+\replaymove{h4g3}% 14... hxg3
+\replaymove{d3h7}% 15. Bh7+
+\replaymove{g8h8}% 15... Kh8
+\replaymove{f2g3}% 16. fxg3
+\replaymove{e7g5}% 16... Bg5
+\replaymove{d2f3}% 17. Nf3
+\replaymove{g5c1}% 17... Bxc1
+\replaymove{h7g8}% 18. Bg8+
+\replaymove{d8h4}% 18... Qh4
+\replaymove{h1h4}% 19. Rxh4+
+\replaymove{h8g8}% 19... Kxg8
+\replaymove{c2h7}% 20. Qh7#
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 7: TeX Chess Engine vs Stockfish (0-1)}
+\noindent 1.~Nc3 d5 2.~e3 Nf6 3.~Nf3 a6 4.~h3 b6 5.~Bd3 e6 6.~Ne2 Nbd7 7.~b4 Bxb4 8.~Bb2 O-O 9.~a3 Bd6 10.~a4 c5 11.~O-O c4 12.~Bxc4 dxc4 13.~d3 Bc5 14.~dxc4 Bb7 15.~Nd2 Qc7 16.~Nb3 Rfe8 17.~Bxf6 Qc6 18.~e4 Qxe4 19.~Nf4 Qxf4 20.~Qxd7 Qe4 21.~Qxe8+ Rxe8 22.~Nxc5 Qxg2\# 0-1
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{b1c3}% 1. Nc3
+\replaymove{d7d5}% 1... d5
+\replaymove{e2e3}% 2. e3
+\replaymove{g8f6}% 2... Nf6
+\replaymove{g1f3}% 3. Nf3
+\replaymove{a7a6}% 3... a6
+\replaymove{h2h3}% 4. h3
+\replaymove{b7b6}% 4... b6
+\replaymove{f1d3}% 5. Bd3
+\replaymove{e7e6}% 5... e6
+\replaymove{c3e2}% 6. Ne2
+\replaymove{b8d7}% 6... Nbd7
+\replaymove{b2b4}% 7. b4
+\replaymove{f8b4}% 7... Bxb4
+\replaymove{c1b2}% 8. Bb2
+\replaymove{e8g8}% 8... O-O
+\replaymove{a2a3}% 9. a3
+\replaymove{b4d6}% 9... Bd6
+\replaymove{a3a4}% 10. a4
+\replaymove{c7c5}% 10... c5
+\replaymove{e1g1}% 11. O-O
+\replaymove{c5c4}% 11... c4
+\replaymove{d3c4}% 12. Bxc4
+\replaymove{d5c4}% 12... dxc4
+\replaymove{d2d3}% 13. d3
+\replaymove{d6c5}% 13... Bc5
+\replaymove{d3c4}% 14. dxc4
+\replaymove{c8b7}% 14... Bb7
+\replaymove{f3d2}% 15. Nd2
+\replaymove{d8c7}% 15... Qc7
+\replaymove{d2b3}% 16. Nb3
+\replaymove{f8e8}% 16... Rfe8
+\replaymove{b2f6}% 17. Bxf6
+\replaymove{c7c6}% 17... Qc6
+\replaymove{e3e4}% 18. e4
+\replaymove{c6e4}% 18... Qxe4
+\replaymove{e2f4}% 19. Nf4
+\replaymove{e4f4}% 19... Qxf4
+\replaymove{d1d7}% 20. Qxd7
+\replaymove{f4e4}% 20... Qe4
+\replaymove{d7e8}% 21. Qxe8+
+\replaymove{a8e8}% 21... Rxe8
+\replaymove{b3c5}% 22. Nxc5
+\replaymove{e4g2}% 22... Qxg2#
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 8: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~c3 Nc6 2.~d4 d5 3.~Bf4 Nf6 4.~e3 Bf5 5.~Be2 Be4 6.~h4 Bxg2 7.~Qb3 Bxh1 8.~Nd2 e5 9.~dxe5 Ne4 10.~Nxe4 Qc8 11.~Ng5 Be7 12.~N5f3 O-O 13.~Qc2 Qe6 14.~h5 Qg4 15.~O-O-O Qd7 16.~a3 Rad8 17.~h6 Bxf3 18.~hxg7 Rfe8 19.~Bxf3 Bxa3 20.~bxa3 Ne7 21.~c4 Kxg7 22.~Ne2 Qh3 23.~Nd4 dxc4 24.~Rh1 Qc8 25.~Qxh7+ Kf8 26.~Qh6+ Kg8 27.~Qh7+ Kf8 28.~Bh6\# 1-0
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{c2c3}% 1. c3
+\replaymove{b8c6}% 1... Nc6
+\replaymove{d2d4}% 2. d4
+\replaymove{d7d5}% 2... d5
+\replaymove{c1f4}% 3. Bf4
+\replaymove{g8f6}% 3... Nf6
+\replaymove{e2e3}% 4. e3
+\replaymove{c8f5}% 4... Bf5
+\replaymove{f1e2}% 5. Be2
+\replaymove{f5e4}% 5... Be4
+\replaymove{h2h4}% 6. h4
+\replaymove{e4g2}% 6... Bxg2
+\replaymove{d1b3}% 7. Qb3
+\replaymove{g2h1}% 7... Bxh1
+\replaymove{b1d2}% 8. Nd2
+\replaymove{e7e5}% 8... e5
+\replaymove{d4e5}% 9. dxe5
+\replaymove{f6e4}% 9... Ne4
+\replaymove{d2e4}% 10. Nxe4
+\replaymove{d8c8}% 10... Qc8
+\replaymove{e4g5}% 11. Ng5
+\replaymove{f8e7}% 11... Be7
+\replaymove{g5f3}% 12. N5f3
+\replaymove{e8g8}% 12... O-O
+\replaymove{b3c2}% 13. Qc2
+\replaymove{c8e6}% 13... Qe6
+\replaymove{h4h5}% 14. h5
+\replaymove{e6g4}% 14... Qg4
+\replaymove{e1c1}% 15. O-O-O
+\replaymove{g4d7}% 15... Qd7
+\replaymove{a2a3}% 16. a3
+\replaymove{a8d8}% 16... Rad8
+\replaymove{h5h6}% 17. h6
+\replaymove{h1f3}% 17... Bxf3
+\replaymove{h6g7}% 18. hxg7
+\replaymove{f8e8}% 18... Rfe8
+\replaymove{e2f3}% 19. Bxf3
+\replaymove{e7a3}% 19... Bxa3
+\replaymove{b2a3}% 20. bxa3
+\replaymove{c6e7}% 20... Ne7
+\replaymove{c3c4}% 21. c4
+\replaymove{g8g7}% 21... Kxg7
+\replaymove{g1e2}% 22. Ne2
+\replaymove{d7h3}% 22... Qh3
+\replaymove{e2d4}% 23. Nd4
+\replaymove{d5c4}% 23... dxc4
+\replaymove{d1h1}% 24. Rh1
+\replaymove{h3c8}% 24... Qc8
+\replaymove{c2h7}% 25. Qxh7+
+\replaymove{g7f8}% 25... Kf8
+\replaymove{h7h6}% 26. Qh6+
+\replaymove{f8g8}% 26... Kg8
+\replaymove{h6h7}% 27. Qh7+
+\replaymove{g8f8}% 27... Kf8
+\replaymove{f4h6}% 28. Bh6#
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 9: TeX Chess Engine vs Stockfish (1-0)}
+\noindent 1.~Nc3 e5 2.~a3 d5 3.~d4 Bd6 4.~e3 Nf6 5.~Qd2 exd4 6.~exd4 c6 7.~Qe2+ Qe7 8.~Nf3 Bf5 9.~Qxe7+ Bxe7 10.~Bg5 h6 11.~Bxf6 Bf8 12.~Bh4 Bxc2 13.~Kd2 Be4 14.~Re1 f5 15.~Bd3 Nd7 16.~Bg3 Be7 17.~Rhg1 Rf8 18.~Rh1 O-O-O 19.~a4 f4 20.~Nxe4 dxe4 21.~Rxe4 Bb4+ 22.~Kc1 Bd6 23.~Bh4 g5 24.~Bxg5 Nf6 25.~Bxf6 Rxf6 26.~Kb1 Bb4 27.~Rg1 Bd6 28.~a5 Kc7 29.~a6 Rb8 30.~axb7 a5 31.~Rd1 h5 32.~b3 a4 33.~bxa4 Ba3 34.~Re5 c5 35.~Ka2 Rc6 36.~d5 Rd6 37.~Kxa3 h4 38.~Re7+ Rd7 39.~Rxd7+ Kb6 40.~Rf7 Ka5 41.~Rxf4 Rxb7 42.~Rc1 c4 43.~Rcxc4 Rb1 44.~Bxb1 Kb6 45.~Rf7 Ka6 46.~Rxh4 Ka5 47.~Bd3 Kb6 48.~Ka2 Kc5 49.~Rd4 Kd6 50.~a5 Kc5 51.~a6 Kb6 52.~a7 Ka5 53.~a8=Q+ Kb6 54.~Qa7\# 1-0
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{b1c3}% 1. Nc3
+\replaymove{e7e5}% 1... e5
+\replaymove{a2a3}% 2. a3
+\replaymove{d7d5}% 2... d5
+\replaymove{d2d4}% 3. d4
+\replaymove{f8d6}% 3... Bd6
+\replaymove{e2e3}% 4. e3
+\replaymove{g8f6}% 4... Nf6
+\replaymove{d1d2}% 5. Qd2
+\replaymove{e5d4}% 5... exd4
+\replaymove{e3d4}% 6. exd4
+\replaymove{c7c6}% 6... c6
+\replaymove{d2e2}% 7. Qe2+
+\replaymove{d8e7}% 7... Qe7
+\replaymove{g1f3}% 8. Nf3
+\replaymove{c8f5}% 8... Bf5
+\replaymove{e2e7}% 9. Qxe7+
+\par\noindent After 9.~Qxe7+\\
+\showboard
+\medskip
+
+\replaymove{d6e7}% 9... Bxe7
+\replaymove{c1g5}% 10. Bg5
+\replaymove{h7h6}% 10... h6
+\replaymove{g5f6}% 11. Bxf6
+\replaymove{e7f8}% 11... Bf8
+\replaymove{f6h4}% 12. Bh4
+\replaymove{f5c2}% 12... Bxc2
+\replaymove{e1d2}% 13. Kd2
+\replaymove{c2e4}% 13... Be4
+\replaymove{a1e1}% 14. Re1
+\replaymove{f7f5}% 14... f5
+\replaymove{f1d3}% 15. Bd3
+\replaymove{b8d7}% 15... Nd7
+\replaymove{h4g3}% 16. Bg3
+\replaymove{f8e7}% 16... Be7
+\replaymove{h1g1}% 17. Rhg1
+\replaymove{h8f8}% 17... Rf8
+\par\noindent After 17\ldots Rf8\\
+\showboard
+\medskip
+
+\replaymove{g1h1}% 18. Rh1
+\replaymove{e8c8}% 18... O-O-O
+\replaymove{a3a4}% 19. a4
+\replaymove{f5f4}% 19... f4
+\replaymove{c3e4}% 20. Nxe4
+\replaymove{d5e4}% 20... dxe4
+\replaymove{e1e4}% 21. Rxe4
+\replaymove{e7b4}% 21... Bb4+
+\replaymove{d2c1}% 22. Kc1
+\replaymove{b4d6}% 22... Bd6
+\replaymove{g3h4}% 23. Bh4
+\replaymove{g7g5}% 23... g5
+\replaymove{h4g5}% 24. Bxg5
+\replaymove{d7f6}% 24... Nf6
+\replaymove{g5f6}% 25. Bxf6
+\replaymove{f8f6}% 25... Rxf6
+\replaymove{c1b1}% 26. Kb1
+\par\noindent After 26.~Kb1\\
+\showboard
+\medskip
+
+\replaymove{d6b4}% 26... Bb4
+\replaymove{h1g1}% 27. Rg1
+\replaymove{b4d6}% 27... Bd6
+\replaymove{a4a5}% 28. a5
+\replaymove{c8c7}% 28... Kc7
+\replaymove{a5a6}% 29. a6
+\replaymove{d8b8}% 29... Rb8
+\replaymove{a6b7}% 30. axb7
+\replaymove{a7a5}% 30... a5
+\replaymove{g1d1}% 31. Rd1
+\replaymove{h6h5}% 31... h5
+\replaymove{b2b3}% 32. b3
+\replaymove{a5a4}% 32... a4
+\replaymove{b3a4}% 33. bxa4
+\replaymove{d6a3}% 33... Ba3
+\replaymove{e4e5}% 34. Re5
+\replaymove{c6c5}% 34... c5
+\par\noindent After 34\ldots c5\\
+\showboard
+\medskip
+
+\replaymove{b1a2}% 35. Ka2
+\replaymove{f6c6}% 35... Rc6
+\replaymove{d4d5}% 36. d5
+\replaymove{c6d6}% 36... Rd6
+\replaymove{a2a3}% 37. Kxa3
+\replaymove{h5h4}% 37... h4
+\replaymove{e5e7}% 38. Re7+
+\replaymove{d6d7}% 38... Rd7
+\replaymove{e7d7}% 39. Rxd7+
+\replaymove{c7b6}% 39... Kb6
+\replaymove{d7f7}% 40. Rf7
+\replaymove{b6a5}% 40... Ka5
+\replaymove{f7f4}% 41. Rxf4
+\replaymove{b8b7}% 41... Rxb7
+\replaymove{d1c1}% 42. Rc1
+\replaymove{c5c4}% 42... c4
+\replaymove{c1c4}% 43. Rcxc4
+\par\noindent After 43.~Rcxc4\\
+\showboard
+\medskip
+
+\replaymove{b7b1}% 43... Rb1
+\replaymove{d3b1}% 44. Bxb1
+\replaymove{a5b6}% 44... Kb6
+\replaymove{f4f7}% 45. Rf7
+\replaymove{b6a6}% 45... Ka6
+\replaymove{c4h4}% 46. Rxh4
+\replaymove{a6a5}% 46... Ka5
+\replaymove{b1d3}% 47. Bd3
+\replaymove{a5b6}% 47... Kb6
+\replaymove{a3a2}% 48. Ka2
+\replaymove{b6c5}% 48... Kc5
+\replaymove{h4d4}% 49. Rd4
+\replaymove{c5d6}% 49... Kd6
+\replaymove{a4a5}% 50. a5
+\replaymove{d6c5}% 50... Kc5
+\replaymove{a5a6}% 51. a6
+\replaymove{c5b6}% 51... Kb6
+\par\noindent After 51\ldots Kb6\\
+\showboard
+\medskip
+
+\replaymove{a6a7}% 52. a7
+\replaymove{b6a5}% 52... Ka5
+\replaymove{a7a8q}% 53. a8=Q+
+\replaymove{a5b6}% 53... Kb6
+\replaymove{a8a7}% 54. Qa7#
+
+\par\noindent Final position:\\
+\showboard
+
+\hrule
+\bigskip
+
+\subsection*{Game 10: Stockfish vs TeX Chess Engine (1-0)}
+\noindent 1.~e3 Nc6 2.~c4 e5 3.~Nc3 Bb4 4.~Nge2 Nf6 5.~Nd5 O-O 6.~Nxb4 Nxb4 7.~Nc3 a5 8.~d3 d6 9.~a3 Na6 10.~b3 Bg4 11.~Qc2 Bd7 12.~h3 Nc5 13.~Bb2 a4 14.~b4 Ne6 15.~Rd1 Bc6 16.~Rc1 Qe7 17.~b5 Bd7 18.~Be2 c6 19.~O-O Qd8 20.~Kh1 Qc7 21.~Kg1 Rfe8 22.~Bf3 Ng5 23.~Bd1 Ne6 24.~Qb1 Rad8 25.~Nxa4 b6 26.~Qa2 h6 27.~Qb3 h5 28.~Kh1 h4 29.~Kg1 Rc8 30.~Nc3 Nc5 31.~Qc2 cxb5 32.~Nxb5 Qb8 33.~d4 exd4 34.~Bxd4 Nce4 35.~Qb2 Bc6 36.~Bf3 Nd7 37.~Bg4 Qb7 38.~Bxg7 Bxb5 39.~cxb5 f5 40.~Bxf5 Rxc1 41.~Qb3+ Kxg7 42.~Rxc1 Ndf6 43.~Qc4 d5 44.~Qc7+ Qxc7 45.~Rxc7+ Kh6 46.~Rb7 Nd6 47.~Rxb6 Rd8 48.~a4 Kg7 49.~Bc2 Nfe8 50.~Rc6 Rc8 51.~Rxc8 Nxc8 52.~Kh2 Kg8 53.~a5 Ncd6 54.~Ba4 Nc7 55.~b6 Ne6 56.~a6 Nd4 57.~exd4 Nb5 58.~b7 Nxd4 59.~b8=Q+ Kg7 60.~a7 Ne6 61.~a8=Q Nc5 62.~Qg8+ Kh6 63.~Qaf8+ Kh5 64.~Be8\# 1-0
+
+\medskip
+\initboard
+\initgamestate
+\replaymove{e2e3}% 1. e3
+\replaymove{b8c6}% 1... Nc6
+\replaymove{c2c4}% 2. c4
+\replaymove{e7e5}% 2... e5
+\replaymove{b1c3}% 3. Nc3
+\replaymove{f8b4}% 3... Bb4
+\replaymove{g1e2}% 4. Nge2
+\replaymove{g8f6}% 4... Nf6
+\replaymove{c3d5}% 5. Nd5
+\replaymove{e8g8}% 5... O-O
+\replaymove{d5b4}% 6. Nxb4
+\replaymove{c6b4}% 6... Nxb4
+\replaymove{e2c3}% 7. Nc3
+\replaymove{a7a5}% 7... a5
+\replaymove{d2d3}% 8. d3
+\replaymove{d7d6}% 8... d6
+\replaymove{a2a3}% 9. a3
+\replaymove{b4a6}% 9... Na6
+\replaymove{b2b3}% 10. b3
+\replaymove{c8g4}% 10... Bg4
+\replaymove{d1c2}% 11. Qc2
+\par\noindent After 11.~Qc2\\
+\showboard
+\medskip
+
+\replaymove{g4d7}% 11... Bd7
+\replaymove{h2h3}% 12. h3
+\replaymove{a6c5}% 12... Nc5
+\replaymove{c1b2}% 13. Bb2
+\replaymove{a5a4}% 13... a4
+\replaymove{b3b4}% 14. b4
+\replaymove{c5e6}% 14... Ne6
+\replaymove{a1d1}% 15. Rd1
+\replaymove{d7c6}% 15... Bc6
+\replaymove{d1c1}% 16. Rc1
+\replaymove{d8e7}% 16... Qe7
+\replaymove{b4b5}% 17. b5
+\replaymove{c6d7}% 17... Bd7
+\replaymove{f1e2}% 18. Be2
+\replaymove{c7c6}% 18... c6
+\replaymove{e1g1}% 19. O-O
+\replaymove{e7d8}% 19... Qd8
+\replaymove{g1h1}% 20. Kh1
+\replaymove{d8c7}% 20... Qc7
+\replaymove{h1g1}% 21. Kg1
+\replaymove{f8e8}% 21... Rfe8
+\par\noindent After 21\ldots Rfe8\\
+\showboard
+\medskip
+
+\replaymove{e2f3}% 22. Bf3
+\replaymove{e6g5}% 22... Ng5
+\replaymove{f3d1}% 23. Bd1
+\replaymove{g5e6}% 23... Ne6
+\replaymove{c2b1}% 24. Qb1
+\replaymove{a8d8}% 24... Rad8
+\replaymove{c3a4}% 25. Nxa4
+\replaymove{b7b6}% 25... b6
+\replaymove{b1a2}% 26. Qa2
+\replaymove{h7h6}% 26... h6
+\replaymove{a2b3}% 27. Qb3
+\replaymove{h6h5}% 27... h5
+\replaymove{g1h1}% 28. Kh1
+\replaymove{h5h4}% 28... h4
+\replaymove{h1g1}% 29. Kg1
+\replaymove{d8c8}% 29... Rc8
+\replaymove{a4c3}% 30. Nc3
+\replaymove{e6c5}% 30... Nc5
+\replaymove{b3c2}% 31. Qc2
+\replaymove{c6b5}% 31... cxb5
+\replaymove{c3b5}% 32. Nxb5
+\par\noindent After 32.~Nxb5\\
+\showboard
+\medskip
+
+\replaymove{c7b8}% 32... Qb8
+\replaymove{d3d4}% 33. d4
+\replaymove{e5d4}% 33... exd4
+\replaymove{b2d4}% 34. Bxd4
+\replaymove{c5e4}% 34... Nce4
+\replaymove{c2b2}% 35. Qb2
+\replaymove{d7c6}% 35... Bc6
+\replaymove{d1f3}% 36. Bf3
+\replaymove{f6d7}% 36... Nd7
+\replaymove{f3g4}% 37. Bg4
+\replaymove{b8b7}% 37... Qb7
+\replaymove{d4g7}% 38. Bxg7
+\replaymove{c6b5}% 38... Bxb5
+\replaymove{c4b5}% 39. cxb5
+\replaymove{f7f5}% 39... f5
+\replaymove{g4f5}% 40. Bxf5
+\replaymove{c8c1}% 40... Rxc1
+\replaymove{b2b3}% 41. Qb3+
+\replaymove{g8g7}% 41... Kxg7
+\replaymove{f1c1}% 42. Rxc1
+\replaymove{d7f6}% 42... Ndf6
+\par\noindent After 42\ldots Ndf6\\
+\showboard
+\medskip
+
+\replaymove{b3c4}% 43. Qc4
+\replaymove{d6d5}% 43... d5
+\replaymove{c4c7}% 44. Qc7+
+\replaymove{b7c7}% 44... Qxc7
+\replaymove{c1c7}% 45. Rxc7+
+\replaymove{g7h6}% 45... Kh6
+\replaymove{c7b7}% 46. Rb7
+\replaymove{e4d6}% 46... Nd6
+\replaymove{b7b6}% 47. Rxb6
+\replaymove{e8d8}% 47... Rd8
+\replaymove{a3a4}% 48. a4
+\replaymove{h6g7}% 48... Kg7
+\replaymove{f5c2}% 49. Bc2
+\replaymove{f6e8}% 49... Nfe8
+\replaymove{b6c6}% 50. Rc6
+\replaymove{d8c8}% 50... Rc8
+\replaymove{c6c8}% 51. Rxc8
+\replaymove{d6c8}% 51... Nxc8
+\replaymove{g1h2}% 52. Kh2
+\replaymove{g7g8}% 52... Kg8
+\replaymove{a4a5}% 53. a5
+\par\noindent After 53.~a5\\
+\showboard
+\medskip
+
+\replaymove{c8d6}% 53... Ncd6
+\replaymove{c2a4}% 54. Ba4
+\replaymove{e8c7}% 54... Nc7
+\replaymove{b5b6}% 55. b6
+\replaymove{c7e6}% 55... Ne6
+\replaymove{a5a6}% 56. a6
+\replaymove{e6d4}% 56... Nd4
+\replaymove{e3d4}% 57. exd4
+\replaymove{d6b5}% 57... Nb5
+\replaymove{b6b7}% 58. b7
+\replaymove{b5d4}% 58... Nxd4
+\replaymove{b7b8q}% 59. b8=Q+
+\replaymove{g8g7}% 59... Kg7
+\replaymove{a6a7}% 60. a7
+\replaymove{d4e6}% 60... Ne6
+\replaymove{a7a8q}% 61. a8=Q
+\replaymove{e6c5}% 61... Nc5
+\replaymove{b8g8}% 62. Qg8+
+\replaymove{g7h6}% 62... Kh6
+\replaymove{a8f8}% 63. Qaf8+
+\replaymove{h6h5}% 63... Kh5
+\par\noindent After 63\ldots Kh5\\
+\showboard
+\medskip
+
+\replaymove{a4e8}% 64. Be8#
+
+\par\noindent Final position:\\
+\showboard
+
+\makeatother
+\end{document}

@@ -9,11 +9,12 @@ STOCKFISH_ELO=${STOCKFISH_ELO:-1320}
 # The UCI_Elo scale was tuned at this TC, anchored to CCRL 40/4.
 # For a longer/stabler alternative, use: TIME_CONTROL="40/240+2"
 TIME_CONTROL=${TIME_CONTROL:-"120+1"}
-PGN_FILE="elo-games.pgn"
-TEX_FILE="elo-games.tex"
-PDF_FILE="elo-games.pdf"
-NATIVE_TEX_FILE="elo-games-native.tex"
-NATIVE_PDF_FILE="elo-games-native.pdf"
+TAG="elo${STOCKFISH_ELO}"
+PGN_FILE="${TAG}-games.pgn"
+TEX_FILE="${TAG}-games.tex"
+PDF_FILE="${TAG}-games.pdf"
+NATIVE_TEX_FILE="${TAG}-games-native.tex"
+NATIVE_PDF_FILE="${TAG}-games-native.pdf"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
