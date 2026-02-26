@@ -8,7 +8,7 @@ To the best of our knowledge, this is the first chess engine ever written in LaT
 
 Estimated strength: **~1300 Elo** (measured: 46% score vs Stockfish 1320 over 100 games, time control 40/60+1).
 
-Playable on Overleaf and locally via pdflatex recompilation.
+Playable on [Overleaf](https://www.overleaf.com/docs?snip_uri=https%3A%2F%2Fgithub.com%2Facherm%2Fagentic-chessengine-latex-TeXCCChess%2Freleases%2Fdownload%2Fv1.0%2FTeXCCChess.zip&engine=pdflatex&main_document=chess-game.tex) and locally via pdflatex recompilation.
 
 ## Demos
 
@@ -18,7 +18,7 @@ Playable on Overleaf and locally via pdflatex recompilation.
 
 [![Overleaf demo](https://img.youtube.com/vi/ngHMozcyfeY/0.jpg)](https://youtu.be/ngHMozcyfeY)
 
-**[Overleaf demo](https://youtu.be/ngHMozcyfeY)** — Running the engine directly in Overleaf (yes, it works!)
+**[Overleaf demo](https://youtu.be/ngHMozcyfeY)** — Running the engine directly in [Overleaf](https://www.overleaf.com/docs?snip_uri=https%3A%2F%2Fgithub.com%2Facherm%2Fagentic-chessengine-latex-TeXCCChess%2Freleases%2Fdownload%2Fv1.0%2FTeXCCChess.zip&engine=pdflatex&main_document=chess-game.tex) (yes, it works... you might need to change depth by setting \enginestrength=2 or 1 or 0... play locally)
 
 ## Features
 
