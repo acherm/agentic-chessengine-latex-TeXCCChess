@@ -1,12 +1,14 @@
 # TeXCCChess
 
-**A complete chess engine written entirely in pure TeX** (~2,100 lines of TeX macros).
+**A complete chess engine written entirely in pure TeX** (~2,100 lines of TeX macros) created by Claude Code and Mathieu Acher.
 
-All game logic — board representation, move generation, legal move validation, search, and evaluation — runs inside TeX at compile time. No Lua, no external programs for the chess logic itself. Just `\count` registers, `\csname` tables, and a lot of `\expandafter`.
+All game logic (board representation, move generation, legal move validation, search, and evaluation) runs inside TeX at compile time. No Lua, no external programs for the chess logic itself. Just `\count` registers, `\csname` tables, and a lot of `\expandafter`.
 
 To the best of our knowledge, this is the first chess engine ever written in LaTeX/TeX.
 
 Estimated strength: **~1300 Elo** (measured: 46% score vs Stockfish 1320 over 100 games, time control 40/60+1).
+
+Playable on Overleaf and locally via pdflatex recompilation.
 
 ## Demos
 
@@ -120,4 +122,4 @@ GAMES=100 STOCKFISH_ELO=1320 TIME_CONTROL="40/60+1" bash run-elo-test.sh
 
 ## How It Was Built
 
-This engine was entirely AI-generated using [Claude Code](https://claude.com/claude-code) (agentic coding). A human guided the process through iterative prompting — the TeX code itself was written by Claude.
+This engine was entirely AI-generated using [Claude Code](https://claude.com/claude-code) (agentic coding). Mathieu Acher guided the process through iterative prompting; the TeX code itself was written by Claude.
