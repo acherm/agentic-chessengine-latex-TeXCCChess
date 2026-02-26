@@ -2,6 +2,9 @@
 *.log
 *.pdf
 *.dat
+*.fdb_latexmk
+*.fls
+*.synctex.gz
 texput.*
 interactive-game.*
 interactive-moves.txt
